@@ -20,7 +20,8 @@ class ReplyKeyboardMarkup:
 
     def add_buttons(self, *buttons: KeyboardButton):
         for button in buttons:
-            self.buttons.append([{'text': button.text}])
-            reply_markup = json.loads(self.reply_markup)
-            reply_markup['keyboard'] = self.buttons
-            self.reply_markup = json.dumps(reply_markup)
+            self.add_button(button)
+
+
+class ReplyKeyboardRemove:
+     reply_markup = json.dumps({'remove_keyboard': True})

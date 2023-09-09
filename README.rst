@@ -4,13 +4,19 @@ BLAZOGRAM - is a library for make Telegram Bots.
 
 
 .. code-block:: console
+
+
   $ pip install blazogram
+
 
 
 **Example of use:**
 
 
 .. code-block:: python
+
+
+
   from blazogram import Bot, Dispatcher
   from blazogram.types import Message, CallbackQuery, ReplyKeyboardMarkup, KeyboardButton
   import asyncio
@@ -40,5 +46,6 @@ BLAZOGRAM - is a library for make Telegram Bots.
 
   if __name__ == '__main__':
       asyncio.run(main())
+
 
 **Developer - Blaze Egor**

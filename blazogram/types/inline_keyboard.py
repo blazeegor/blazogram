@@ -32,8 +32,4 @@ class InlineKeyboardMarkup:
 
     def add_buttons(self, *buttons: InlineKeyboardButton):
         for button in buttons:
-            button = get_button(button)
-            self.buttons.append([button])
-            reply_markup = json.loads(self.reply_markup)
-            reply_markup['inline_keyboard'] = self.buttons
-            self.reply_markup = json.dumps(reply_markup)
+            self.add_button(button)

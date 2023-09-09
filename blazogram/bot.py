@@ -1,16 +1,18 @@
 from .methods import Methods
-from ..types.keyboard.reply_keyboard import ReplyKeyboardMarkup
-from ..types.keyboard.inline_keyboard import InlineKeyboardMarkup
-from typing import Union
+from .types import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardMarkup
+from typing import Union, Literal
+from dataclasses import dataclass
 
 
+@dataclass
 class Bot:
-    def __init__(self, token: str):
+    def __init__(self, token: str, parse_mode: Literal['HTML', 'MARKDOWN'] = 'None'):
         self.token = token
+        self.parse_mode = parse_mode
         self.methods = Methods(token)
 
-    async def send_message(self, chat_id: int, text: str, reply_markup: Union[ReplyKeyboardMarkup, InlineKeyboardMarkup] = ReplyKeyboardMarkup()):
-        return await self.methods.SendMessage(chat_id, text, reply_markup.reply_markup)
+    async def send_message(self, chat_id: int, text: str, parse_mode: Literal['HTML', 'MARKDOWN', 'None'] = 'None', reply_markup: Union[ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove] = ReplyKeyboardMarkup()) -> Message:
+        return await self.methods.SendMessage(chat_id, text, reply_markup.reply_markup, parse_mode)
 
     async def get_me(self):
         return await self.methods.GetMe()
