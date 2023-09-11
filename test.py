@@ -1,26 +1,29 @@
 from blazogram import Bot, Dispatcher, Router
 from blazogram.types import Message, CallbackQuery, ReplyKeyboardRemove
-from blazogram.filters import Command
+from blazogram.filters import Command, Text, StateFilter
 from blazogram.filters.base import BaseFilter
+from blazogram.fsm.context import FSMContext
+from blazogram.fsm.state import State
+from blazogram.fsm.storage.memory import MemoryStorage
 import asyncio
 
 
 router = Router()
 
 
-class IsAdmin(BaseFilter):
-    async def __check__(self, message: Message):
-        return message.from_user.id == 1912790444
+class MyStateGroup:
+    my_state = State()
 
 
-@router.message(IsAdmin(), Command("start"))
-async def some_func(message: Message):
-    msg = await message.answer('<b>Hello!</b>', reply_markup=ReplyKeyboardRemove())
+@router.message(Command("start"))
+async def some_func(message: Message, bot: Bot, state: FSMContext):
+    msg = await bot.send_message(chat_id=message.from_user.id, text='<b>Hello!</b>', reply_markup=ReplyKeyboardRemove())
 
 
-@router.message()
-async def test(message: Message):
+@router.message(StateFilter(MyStateGroup.my_state))
+async def test(message: Message, state: FSMContext):
     await message.answer('<b>Неизвестная команда!</b>')
+    await state.clear()
 
 
 async def main():

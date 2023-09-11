@@ -25,7 +25,7 @@ class Methods:
             data = await response.json()
             if data['ok'] is True:
                 result = data['result']
-                return User(id=result['id'], first_name=result['first_name'], username=result['username'])
+                return User(id=result['id'], is_bot=result['is_bot'], first_name=result['first_name'], username=result['username'])
             else:
                 raise ValueError(f'Error code: {data["error_code"]}. {data["description"]}')
 

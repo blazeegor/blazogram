@@ -4,7 +4,6 @@ from typing import Union, Literal
 from dataclasses import dataclass
 
 
-@dataclass
 class Bot:
     def __init__(self, token: str, parse_mode: Literal['HTML', 'MARKDOWN'] = 'None'):
         self.token = token
