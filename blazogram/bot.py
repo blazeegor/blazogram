@@ -9,15 +9,17 @@ class Bot:
         self.token = token
         self.parse_mode = parse_mode
         self.methods = Methods(token)
+        self.session = self.methods.session
 
-    async def send_message(self, chat_id: int, text: str, parse_mode: Literal['HTML', 'MARKDOWN', 'None'] = 'None', reply_markup: Union[ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove] = ReplyKeyboardMarkup()) -> Message:
+    async def send_message(self, chat_id: int, text: str, parse_mode: Literal['HTML', 'MARKDOWN'] = None, reply_markup: Union[ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove] = ReplyKeyboardMarkup()) -> Message:
+        parse_mode = parse_mode if parse_mode else self.parse_mode
         return await self.methods.SendMessage(chat_id, text, reply_markup.reply_markup, parse_mode)
 
     async def get_me(self):
         return await self.methods.GetMe()
 
-    async def get_updates(self):
-        return await self.methods.GetUpdates()
+    async def get_updates(self, allowed_updates: list | None, offset: int = None):
+        return await self.methods.GetUpdates(offset, allowed_updates=allowed_updates)
 
     async def skip_updates(self):
         return await self.methods.SkipUpdates()

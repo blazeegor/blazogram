@@ -3,7 +3,7 @@ from ..state import State
 
 
 def build_key(key: UserKey) -> str:
-    return f'{key.bot_id}:{key.chat_id}:{key.user_id}'
+    return f'{key.chat_id}:{key.user_id}'
 
 
 class MemoryStorage(BaseStorage):

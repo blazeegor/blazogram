@@ -5,7 +5,6 @@ from typing import Optional
 
 @dataclass
 class UserKey:
-    bot_id: int
     chat_id: int
     user_id: int
 
