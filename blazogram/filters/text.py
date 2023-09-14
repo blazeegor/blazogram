@@ -1,13 +1,16 @@
 from .base import BaseFilter
 from ..types.message import Message
+from ..exceptions import FilterError
 
 
 class Text(BaseFilter):
     def __init__(self, text: str = None, startswith: str = None, endswith: str = None):
-        if text is not None and startswith is None and endswith is None or startswith is not None and text is None or endswith is not None and text is None:
+        if text and startswith is None and endswith is None or startswith and text is None or endswith and text is None:
             self.text = text
             self.startswith = startswith
             self.endswith = endswith
+        else:
+            raise FilterError(message='Filter Text most have a one argument.')
 
     async def __check__(self, message: Message) -> bool:
         if self.text is not None:

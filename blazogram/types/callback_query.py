@@ -6,7 +6,7 @@ class CallbackQuery:
     def __init__(self, bot, callback_query_id: int, data: str, user: User, message: Message):
         self.bot = bot
         self.callback_query_id = callback_query_id
-        self.from_user = User(id=user.id, is_bot=user.is_bot, first_name=user.first_name, last_name=user.last_name, username=user.username)
+        self.from_user = User(id=user.id, is_bot=user.is_bot, first_name=user.first_name, username=user.username)
         self.message = message
         self.data = data
 

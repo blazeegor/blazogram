@@ -16,12 +16,10 @@ class MemoryStorage(BaseStorage):
             self.storage[key_str] = dict(state=None, data={})
 
     async def set_state(self, key: UserKey, state: State) -> None:
-        key_str = build_key(key)
-        self.storage[key_str]['state'] = state.state_id
+        self.storage[build_key(key)]['state'] = state.state_id
 
     async def get_state(self, key: UserKey) -> int:
-        key_str = build_key(key)
-        return self.storage[key_str]['state']
+        return self.storage[build_key(key)]['state']
 
     async def get_data(self, key: UserKey) -> dict:
         return self.storage[build_key(key)]['data']
