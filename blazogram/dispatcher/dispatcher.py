@@ -1,6 +1,7 @@
 from blazogram.bot import Bot
 from blazogram.dispatcher.router import Router
 from blazogram.types import Message, CallbackQuery, Chat, User
+from blazogram.types.objects import PhotoSize
 from blazogram.fsm.storage.base import BaseStorage, UserKey
 from blazogram.fsm.storage.memory import MemoryStorage
 from blazogram.fsm.context import FSMContext
@@ -10,71 +11,74 @@ import inspect
 import asyncio
 
 
+def get_data(args: list, bot: Bot, fsm_context: FSMContext, scheduler: BlazeScheduler) -> dict:
+    data = dict()
+    if 'bot' in args:
+        data['bot'] = bot
+    if 'state' in args:
+        data['state'] = fsm_context
+    if 'scheduler' in args:
+        data['scheduler'] = scheduler
+    return data
+
+
 async def feed_update(update: dict, handlers: list, bot: Bot, fsm_storage: BaseStorage, scheduler: BlazeScheduler):
     for handler in handlers:
         if handler[1] in update.keys():
             if handler[1] == 'message':
                 message = update['message']
-                chat = Chat(id=message['chat']['id'], type=message['chat']['type'],
-                            first_name=message['chat']['first_name'], username=message['chat']['username'])
-                user = User(id=message['from']['id'], is_bot=message['from']['is_bot'],
-                            first_name=message['from']['first_name'], username=message['from']['username'])
-                message = Message(bot=bot, message_id=message['message_id'], text=message['text'], chat=chat, user=user)
+                chat = Chat(id=message['chat']['id'], type=message['chat']['type'], first_name=message['chat']['first_name'], username=message['chat']['username'])
+                user = User(id=message['from']['id'], is_bot=message['from']['is_bot'], first_name=message['from']['first_name'], username=message['from']['username'])
+
+                arguments = dict()
+                arguments['text'] = None if 'text' not in message.keys() else message['text']
+                arguments['caption'] = None if 'caption' not in message.keys() else message['caption']
+                photo = [PhotoSize(file_id=photo_size['file_id'], file_unique_id=photo_size['file_unique_id'], height=photo_size['height'], width=photo_size['width'], file_size=photo_size['file_size']) for photo_size in message['photo']] if 'photo' in message.keys() else None
+                arguments['photo'] = photo
+
+                message = Message(bot=bot, message_id=message['message_id'], chat=chat, user=user, **arguments)
                 filters = handler[2]
-                fsm_context = FSMContext(key=UserKey(chat_id=message.chat.id, user_id=message.from_user.id),
-                                         storage=fsm_storage)
+                fsm_context = FSMContext(key=UserKey(chat_id=message.chat.id, user_id=message.from_user.id), storage=fsm_storage)
                 check = True
                 for Filter in filters:
                     argument = message if not isinstance(Filter, StateFilter) else await fsm_context.get_state()
                     if not await Filter.__check__(argument):
                         check = False
                 if check is True:
-                    data = dict()
                     args = inspect.getfullargspec(handler[0]).args
-                    if 'bot' in args:
-                        data['bot'] = bot
-                    if 'state' in args:
-                        data['state'] = fsm_context
-                    if 'scheduler' in args:
-                        data['scheduler'] = scheduler
-                    await handler[0](message, **data) if len(handler) == 3 else await handler[3](handler=handler[0], update=message, data=data)
+                    data = get_data(args, bot=bot, fsm_context=fsm_context, scheduler=scheduler)
+                    if len(handler) == 3:
+                        await handler[0](message, **data)
+                    else:
+                        await handler[3](handler=handler[0], update=message, data=data)
                     break
             elif handler[1] == 'callback_query':
                 callback_query = update['callback_query']
-                user = User(id=callback_query['from']['id'], is_bot=callback_query['from']['is_bot'],
-                            first_name=callback_query['from']['first_name'],
-                            username=callback_query['from']['username'])
-                message = Message(bot=bot, message_id=update['callback_query']['message']['message_id'],
-                                  text=update['callback_query']['message']['text'],
-                                  user=User(id=update['callback_query']['message']['from']['id'],
-                                            is_bot=update['callback_query']['message']['from']['is_bot'],
-                                            first_name=update['callback_query']['message']['from']['first_name'],
-                                            username=update['callback_query']['message']['from']['username']),
-                                  chat=Chat(id=update['callback_query']['message']['chat']['id'],
-                                            type=update['callback_query']['message']['chat']['type'],
-                                            first_name=update['callback_query']['message']['chat']['first_name'],
-                                            username=update['callback_query']['message']['chat']['username']))
-                callback_query = CallbackQuery(bot=bot, callback_query_id=callback_query['id'],
-                                               data=callback_query['data'], message=message, user=user)
+                message = callback_query['message']
+                user = User(id=callback_query['from']['id'], is_bot=callback_query['from']['is_bot'], first_name=callback_query['from']['first_name'], username=callback_query['from']['username'])
+
+                arguments = dict()
+                arguments['text'] = None if 'text' not in message.keys() else message['text']
+                arguments['caption'] = None if 'caption' not in message.keys() else message['caption']
+                photo = [PhotoSize(file_id=photo_size['file_id'], file_unique_id=photo_size['file_unique_id'], height=photo_size['height'], width=photo_size['width'], file_size=photo_size['file_size']) for photo_size in message['photo']] if 'photo' in message.keys() else None
+                arguments['photo'] = photo
+
+                message = Message(bot=bot, message_id=message['message_id'], user=User(id=message['from']['id'], is_bot=message['from']['is_bot'], first_name=message['from']['first_name'], username=message['from']['username']), chat=Chat(id=message['chat']['id'], type=message['chat']['type'], first_name=message['chat']['first_name'],  username=message['chat']['username']), **arguments)
+                callback_query = CallbackQuery(bot=bot, callback_query_id=callback_query['id'], data=callback_query['data'], message=message, user=user)
                 filters = handler[2]
-                fsm_context = FSMContext(
-                    key=UserKey(chat_id=callback_query.message.chat.id, user_id=callback_query.from_user.id),
-                    storage=fsm_storage)
+                fsm_context = FSMContext(key=UserKey(chat_id=callback_query.message.chat.id, user_id=callback_query.from_user.id), storage=fsm_storage)
                 check = True
                 for Filter in filters:
                     argument = callback_query if not isinstance(Filter, StateFilter) else await fsm_context.get_state()
                     if not await Filter.__check__(argument):
                         check = False
                 if check is True:
-                    data = dict()
                     args = inspect.getfullargspec(handler[0]).args
-                    if 'bot' in args:
-                        data['bot'] = bot
-                    elif 'state' in args:
-                        data['state'] = fsm_context
-                    elif 'scheduler' in args:
-                        data['scheduler'] = scheduler
-                    await handler[0](callback_query, **data) if handler[3] is None else await handler[3](handler=handler[0], update=message, data=data)
+                    data = get_data(args, bot=bot, fsm_context=fsm_context, scheduler=scheduler)
+                    if len(handler) == 3:
+                        await handler[0](callback_query, **data)
+                    else:
+                        await handler[3](handler=handler[0], update=message, data=data)
                     break
 
 

@@ -1,11 +1,11 @@
 from .methods import Methods
-from .types import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardMarkup
+from .types import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardMarkup, InputFile
 from typing import Union, Literal
 from dataclasses import dataclass
 
 
 class Bot:
-    def __init__(self, token: str, parse_mode: Literal['HTML', 'MARKDOWN'] = 'None'):
+    def __init__(self, token: str, parse_mode: Literal['HTML', 'MARKDOWN'] = None):
         self.token = token
         self.parse_mode = parse_mode
         self.methods = Methods(token)
@@ -14,6 +14,10 @@ class Bot:
     async def send_message(self, chat_id: int, text: str, parse_mode: Literal['HTML', 'MARKDOWN'] = None, reply_markup: Union[ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove] = ReplyKeyboardMarkup()) -> Message:
         parse_mode = parse_mode if parse_mode else self.parse_mode
         return await self.methods.SendMessage(chat_id, text, reply_markup.reply_markup, parse_mode)
+
+    async def send_photo(self, chat_id: int, photo: Union[InputFile, str], caption: str = None, parse_mode: Literal['HTML', 'MARKDOWN'] = None, reply_markup: Union[ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove] = ReplyKeyboardMarkup()) -> Message:
+        parse_mode = parse_mode if parse_mode else self.parse_mode
+        return await self.methods.SendPhoto(chat_id=chat_id, photo=photo, caption=caption, parse_mode=parse_mode, reply_markup=reply_markup.reply_markup)
 
     async def get_me(self):
         return await self.methods.GetMe()

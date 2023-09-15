@@ -1,5 +1,5 @@
 from .message import (Message)
 from .callback_query import (CallbackQuery)
-from .objects import (Chat, User)
+from .objects import (Chat, User, InputFile, PhotoSize)
 from .reply_keyboard import (ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove)
 from .inline_keyboard import (InlineKeyboardMarkup, InlineKeyboardButton)
