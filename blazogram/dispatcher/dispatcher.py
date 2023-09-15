@@ -1,18 +1,18 @@
-from .bot import Bot
-from .router import Router
-from .types import Message, CallbackQuery, Chat, User
-from .fsm.storage.base import BaseStorage, UserKey
-from .fsm.storage.memory import MemoryStorage
-from .fsm.context import FSMContext
-from .filters import StateFilter
-from .scheduler import BlazeScheduler
+from blazogram.bot import Bot
+from blazogram.dispatcher.router import Router
+from blazogram.types import Message, CallbackQuery, Chat, User
+from blazogram.fsm.storage.base import BaseStorage, UserKey
+from blazogram.fsm.storage.memory import MemoryStorage
+from blazogram.fsm.context import FSMContext
+from blazogram.filters import StateFilter
+from blazogram.scheduler import BlazeScheduler
 import inspect
 import asyncio
 
 
 async def feed_update(update: dict, handlers: list, bot: Bot, fsm_storage: BaseStorage, scheduler: BlazeScheduler):
-    if handlers[1] in update.keys():
-        for handler in handlers:
+    for handler in handlers:
+        if handler[1] in update.keys():
             if handler[1] == 'message':
                 message = update['message']
                 chat = Chat(id=message['chat']['id'], type=message['chat']['type'],
@@ -37,7 +37,7 @@ async def feed_update(update: dict, handlers: list, bot: Bot, fsm_storage: BaseS
                         data['state'] = fsm_context
                     if 'scheduler' in args:
                         data['scheduler'] = scheduler
-                    await handler[0](message, **data)
+                    await handler[0](message, **data) if len(handler) == 3 else await handler[3](handler=handler[0], update=message, data=data)
                     break
             elif handler[1] == 'callback_query':
                 callback_query = update['callback_query']
@@ -74,7 +74,7 @@ async def feed_update(update: dict, handlers: list, bot: Bot, fsm_storage: BaseS
                         data['state'] = fsm_context
                     elif 'scheduler' in args:
                         data['scheduler'] = scheduler
-                    await handler[0](callback_query, **data)
+                    await handler[0](callback_query, **data) if handler[3] is None else await handler[3](handler=handler[0], update=message, data=data)
                     break
 
 
@@ -86,11 +86,11 @@ async def polling(bot: Bot, allowed_updates, self):
             self.offset = [update['update_id'] for update in updates][-1] + 1
 
 
-class Dispatcher:
+class Dispatcher(Router):
     def __init__(self, scheduler: BlazeScheduler = BlazeScheduler(), fsm_storage: BaseStorage = MemoryStorage()):
+        super().__init__()
         self.scheduler = scheduler
         self.fsm_storage = fsm_storage
-        self.handlers = []
         self.offset = None
 
     def include_router(self, router: Router):

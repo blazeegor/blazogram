@@ -24,4 +24,4 @@ class ReplyKeyboardMarkup:
 
 
 class ReplyKeyboardRemove:
-     reply_markup = json.dumps({'remove_keyboard': True})
+    reply_markup = json.dumps({'remove_keyboard': True})

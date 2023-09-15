@@ -12,7 +12,7 @@ class Message:
         self.chat = chat
         self.text = text
 
-    async def answer(self, text: str, parse_mode: Literal['HTML', 'MARKDOWN', 'None'] = 'None', reply_markup: Union[ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove] = ReplyKeyboardMarkup()):
+    async def answer(self, text: str, parse_mode: Literal['HTML', 'MARKDOWN'] = None, reply_markup: Union[ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove] = ReplyKeyboardMarkup()):
         return await self.bot.send_message(chat_id=self.chat.id, text=text, parse_mode=parse_mode, reply_markup=reply_markup)
 
     async def delete(self):

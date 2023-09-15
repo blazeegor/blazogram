@@ -1,3 +1,3 @@
 from .bot import (Bot)
-from .dispatcher import (Dispatcher)
-from .router import Router
+from blazogram.dispatcher.dispatcher import (Dispatcher)
+from blazogram.dispatcher.router import Router
