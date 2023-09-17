@@ -1,35 +1,35 @@
 from dataclasses import dataclass
 from ..state import State
-from typing import Optional
+from abc import ABC, abstractmethod
 
 
-@dataclass
+@dataclass(frozen=True)
 class UserKey:
     chat_id: int
     user_id: int
 
 
-class BaseStorage:
-    def add_key(self, key: UserKey):
-        pass
-
+class BaseStorage(ABC):
+    @abstractmethod
     async def set_state(self, key: UserKey, state: State) -> None:
         pass
 
+    @abstractmethod
     async def get_state(self, key: UserKey) -> State:
         pass
 
+    @abstractmethod
     async def get_data(self, key: UserKey) -> dict:
         pass
 
+    @abstractmethod
     async def set_data(self, key: UserKey, data: dict) -> dict:
         pass
 
+    @abstractmethod
     async def update_data(self, key: UserKey, data: dict) -> dict:
-        current_data = await self.get_data(key=key)
-        current_data.update(data)
-        await self.set_data(key=key, data=current_data)
-        return current_data.copy()
+       pass
 
+    @abstractmethod
     async def clear(self, key: UserKey) -> None:
         pass

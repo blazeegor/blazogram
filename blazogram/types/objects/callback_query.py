@@ -1,5 +1,5 @@
 from .objects import User
-from .message import Message
+from blazogram.types.objects.message import Message
 
 
 class CallbackQuery:

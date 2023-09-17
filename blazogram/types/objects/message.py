@@ -1,6 +1,6 @@
-from .objects import Chat, User, PhotoSize, InputFile
-from .reply_keyboard import ReplyKeyboardMarkup, ReplyKeyboardRemove
-from .inline_keyboard import InlineKeyboardMarkup
+from ...types import Chat, User, PhotoSize, InputFile
+from blazogram.types.reply_keyboard import ReplyKeyboardMarkup, ReplyKeyboardRemove
+from blazogram.types.inline_keyboard import InlineKeyboardMarkup
 from typing import Union, Literal
 
 

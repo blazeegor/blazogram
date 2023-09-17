@@ -1,4 +1,4 @@
-from blazogram.bot import Bot
+from blazogram.bot.bot import Bot
 from blazogram.dispatcher.router import Router
 from blazogram.types import Message, CallbackQuery, Chat, User
 from blazogram.types.objects import PhotoSize

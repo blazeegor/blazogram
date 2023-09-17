@@ -1,14 +1,13 @@
 from .methods import Methods
-from .types import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardMarkup, InputFile
+from ..types import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardMarkup, InputFile
 from typing import Union, Literal
-from dataclasses import dataclass
 
 
 class Bot:
     def __init__(self, token: str, parse_mode: Literal['HTML', 'MARKDOWN'] = None):
         self.token = token
         self.parse_mode = parse_mode
-        self.methods = Methods(token)
+        self.methods = Methods(bot=self)
         self.session = self.methods.session
 
     async def send_message(self, chat_id: int, text: str, parse_mode: Literal['HTML', 'MARKDOWN'] = None, reply_markup: Union[ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove] = ReplyKeyboardMarkup()) -> Message:
@@ -32,7 +31,7 @@ class Bot:
         return await self.methods.AnswerCallbackQuery(callback_query_id, text, show_alert)
 
     async def delete_message(self, chat_id: int, message_id: int):
-        return await self.methods.DeleteMessage(chat_id, message_id)
+        return await self.methods.DeleteMessage(chat_id=chat_id, message_id=message_id)
 
     async def get_chat(self, chat_id: int):
-        return await self.methods.GetChat(chat_id)
+        return await self.methods.GetChat(chat_id=chat_id)

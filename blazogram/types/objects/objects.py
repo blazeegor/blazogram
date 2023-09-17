@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from aiohttp import FormData
 
 
 @dataclass
@@ -25,10 +24,3 @@ class PhotoSize:
     width: int
     height: int
     file_size: int
-
-
-class InputFile:
-    def __init__(self, filename: str):
-        self.data = FormData()
-        self.file = open(filename, 'rb')
-        self.data.add_field('photo', value=self.file, filename=filename, content_type='multipart/form-data')
