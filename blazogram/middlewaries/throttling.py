@@ -12,7 +12,8 @@ class UserKey:
 
 
 class ThrottlingMiddleware(BaseMiddleware):
-    def __init__(self):
+    def __init__(self, delay: int = 2):
+        self.delay = delay
         self.storage: dict[UserKey] = dict()
 
     async def __call__(self,
@@ -21,7 +22,7 @@ class ThrottlingMiddleware(BaseMiddleware):
                        data: dict) -> Any:
         key = UserKey(chat_id=update.chat.id, user_id=update.from_user.id)
         if key in self.storage.keys():
-            if datetime.now() - self.storage[key] > timedelta(seconds=2):
+            if datetime.now() - self.storage[key] > timedelta(seconds=self.delay):
                 return await handler(update, **data)
             else:
                 return await update.answer('❗ Не так быстро.')

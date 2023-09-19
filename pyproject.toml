@@ -1,0 +1,22 @@
+[build-system]
+requires = ["aiohttp", 'setuptools']
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "blazogram"
+version = "1.0.0"
+authors = [
+  { name="EgorBlaze", email="blazeegor@gmail.com" },
+]
+description = "BLAZOGRAM - is a library for make Telegram Bots"
+readme = "README.rst"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/blazeegor/blazogram"
+"Bug Tracker" = "https://github.com/blazeegor/blazogram/issues"
