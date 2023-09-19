@@ -1,7 +1,0 @@
-blazogram
-blazogram/bot
-blazogram/dispatcher
-blazogram/filters
-blazogram/fsm
-blazogram/middlewaries
-blazogram/types
