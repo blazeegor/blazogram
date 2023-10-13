@@ -1,4 +1,0 @@
-class ParseMode:
-    HTML = 'HTML'
-    MARKDOWN = 'MARKDOWN'
-    MARKDOWNV2 = 'MARKDOWNV2'
