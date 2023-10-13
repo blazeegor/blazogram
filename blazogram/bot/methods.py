@@ -2,6 +2,7 @@ from ..types import User, Chat, Message, PhotoSize, InputFile
 from ..exceptions import TelegramBadRequest
 from typing import Union
 import aiohttp
+import json
 
 
 class Methods:
@@ -25,30 +26,46 @@ class Methods:
         else:
            raise TelegramBadRequest(message=data["description"])
 
-    async def SendMessage(self, chat_id: int, text: str, reply_markup: str, parse_mode: str) -> Message:
-        response = await self.session.get(url=f'https://api.telegram.org/bot{self.bot.token}/sendMessage?chat_id={chat_id}&text={text}&reply_markup={reply_markup}&parse_mode={parse_mode}')
+    async def SendMessage(self, chat_id: Union[int, str], text: str, reply_markup: str, parse_mode: str) -> Message:
+        data = {'chat_id': f'{chat_id}', 'text': text, 'reply_markup': reply_markup, 'parse_mode': parse_mode}
+        response = await self.session.get(url=f'https://api.telegram.org/bot{self.bot.token}/sendMessage', data=data)
+
         data = await response.json()
         if data['ok'] is True:
             message = data['result']
             chat = Chat(id=message['chat']['id'], type=message['chat']['type'], username=message['chat']['username'], first_name=message['chat']['first_name'])
-            user = User(id=message['from']['id'], is_bot=message['from']['is_bot'], username=message['from']['username'], first_name=message['from']['first_name'])
+            user = User(id=message['from']['id'], is_bot=message['from']['is_bot'], username=message['from']['username'], first_name=message['from']['first_name'], last_name=None if 'last_name' not in message['from'].keys() else message['from']['last_name'])
             return Message(bot=self.bot, message_id=message['message_id'], text=message['text'], chat=chat, user=user)
         else:
             raise TelegramBadRequest(message=data["description"])
 
-    async def SendPhoto(self, chat_id: int, photo: Union[InputFile, str], caption: str, parse_mode: str, reply_markup: str) -> Message:
-        params = f'chat_id={chat_id}&reply_markup={reply_markup}&parse_mode={parse_mode}'
-        if caption:
-            params += f'&caption={caption}'
-        data = {'photo': photo} if isinstance(photo, str) else photo.data
-        response = await self.session.post(url=f'https://api.telegram.org/bot{self.bot.token}/sendPhoto?{params}', data=data)
-        if isinstance(photo, InputFile):
-            photo.file.close()
+    async def EditMessageText(self, chat_id: Union[int, str], text: str, message_id: int, parse_mode: str, reply_markup: str) -> Message:
+        data = {'chat_id': f'{chat_id}', 'text': text, 'message_id': message_id, 'reply_markup': reply_markup, 'parse_mode': parse_mode}
+        response = await self.session.post(url=f'https://api.telegram.org/bot{self.bot.token}/editMessageText', data=data)
+
         data = await response.json()
         if data['ok'] is True:
             message = data['result']
             chat = Chat(id=message['chat']['id'], type=message['chat']['type'], username=message['chat']['username'], first_name=message['chat']['first_name'])
-            user = User(id=message['from']['id'], is_bot=message['from']['is_bot'], username=message['from']['username'], first_name=message['from']['first_name'])
+            user = User(id=message['from']['id'], is_bot=message['from']['is_bot'], username=message['from']['username'], first_name=message['from']['first_name'], last_name=None if 'last_name' not in message['from'].keys() else message['from']['last_name'])
+            return Message(bot=self.bot, message_id=message['message_id'], text=message['text'], chat=chat, user=user)
+        else:
+            raise TelegramBadRequest(message=data["description"])
+
+    async def SendPhoto(self, chat_id: Union[int, str], photo: Union[InputFile, str], caption: str, parse_mode: str, reply_markup: str) -> Message:
+        data = {'chat_id': f'{chat_id}', 'reply_markup': reply_markup, 'parse_mode': parse_mode}
+
+        if caption:
+            data['caption'] = caption
+
+        data['photo'] = photo if isinstance(photo, str) else photo.file
+        response = await self.session.post(url=f'https://api.telegram.org/bot{self.bot.token}/sendPhoto', data=data)
+
+        data = await response.json()
+        if data['ok'] is True:
+            message = data['result']
+            chat = Chat(id=message['chat']['id'], type=message['chat']['type'], username=message['chat']['username'], first_name=message['chat']['first_name'])
+            user = User(id=message['from']['id'], is_bot=message['from']['is_bot'], username=message['from']['username'], first_name=message['from']['first_name'], last_name=None if 'last_name' not in message['from'].keys() else message['from']['last_name'])
             photo = [PhotoSize(file_id=photo_size['file_id'], file_unique_id=photo_size['file_unique_id'], height=photo_size['height'], width=photo_size['width'], file_size=photo_size['file_size']) for photo_size in message['photo']]
             caption = None if 'caption' not in message.keys() else message['caption']
             return Message(bot=self.bot, message_id=message['message_id'], caption=caption, photo=photo, chat=chat, user=user)

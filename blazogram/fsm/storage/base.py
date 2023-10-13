@@ -25,11 +25,3 @@ class BaseStorage(ABC):
     @abstractmethod
     async def set_data(self, key: UserKey, data: dict) -> dict:
         pass
-
-    @abstractmethod
-    async def update_data(self, key: UserKey, data: dict) -> dict:
-       pass
-
-    @abstractmethod
-    async def clear(self, key: UserKey) -> None:
-        pass

@@ -1,5 +1,5 @@
 from .base import BaseFilter
-from blazogram.types.objects.message import Message
+from ..types.message import Message
 
 
 class Command(BaseFilter):

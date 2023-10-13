@@ -1,5 +1,5 @@
 from .objects import User
-from blazogram.types.objects.message import Message
+from .message import Message
 
 
 class CallbackQuery:
@@ -11,4 +11,4 @@ class CallbackQuery:
         self.message = message
 
     async def answer(self, text: str, show_alert: bool = False):
-        return await self.bot.answer_callback_query(self.callback_query_id, text, show_alert)
+        return await self.bot.answer_callback_query(self.callback_query_id, text=text, show_alert=show_alert)

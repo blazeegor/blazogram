@@ -20,7 +20,11 @@ class FSMContext:
         return await self.storage.set_data(key=self.key, data=data)
 
     async def update_data(self, **data) -> dict:
-        return await self.storage.update_data(key=self.key, data=data)
+        current_data = await self.get_data()
+        current_data.update(data)
+        await self.set_data(current_data)
+        return current_data.copy()
 
     async def clear(self) -> None:
-        return await self.storage.clear(key=self.key)
+        await self.set_state(state=None)
+        await self.set_data(data={})

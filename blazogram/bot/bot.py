@@ -1,24 +1,42 @@
 from .methods import Methods
-from ..types import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardMarkup, InputFile
+from ..types import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardMarkup, InputFile, User
+from ..database.base import Database
+from ..exceptions import DatabaseError
 from typing import Union, Literal
 
 
 class Bot:
-    def __init__(self, token: str, parse_mode: Literal['HTML', 'MARKDOWN'] = None):
+    def __init__(self, token: str, parse_mode: Literal['HTML', 'MARKDOWN'] = None, database: Database = None):
         self.token = token
         self.parse_mode = parse_mode
         self.methods = Methods(bot=self)
         self.session = self.methods.session
+        self.database = database
 
-    async def send_message(self, chat_id: int, text: str, parse_mode: Literal['HTML', 'MARKDOWN'] = None, reply_markup: Union[ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove] = ReplyKeyboardMarkup()) -> Message:
-        parse_mode = parse_mode if parse_mode else self.parse_mode
-        return await self.methods.SendMessage(chat_id, text, reply_markup.reply_markup, parse_mode)
+    async def connect_database(self, database: Database) -> None:
+        self.database = database
 
-    async def send_photo(self, chat_id: int, photo: Union[InputFile, str], caption: str = None, parse_mode: Literal['HTML', 'MARKDOWN'] = None, reply_markup: Union[ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove] = ReplyKeyboardMarkup()) -> Message:
-        parse_mode = parse_mode if parse_mode else self.parse_mode
-        return await self.methods.SendPhoto(chat_id=chat_id, photo=photo, caption=caption, parse_mode=parse_mode, reply_markup=reply_markup.reply_markup)
+    async def send_all(self, text: str, parse_mode: Literal['HTML', 'MARKDOWN'] = None, reply_markup: Union[ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove] = ReplyKeyboardMarkup()) -> dict:
+        if not self.database:
+            raise DatabaseError(message='Database is not connected.')
 
-    async def get_me(self):
+        number = 0
+        users = await self.database.get_users()
+        for user in users:
+            await self.send_message(chat_id=user.id, text=text, parse_mode=parse_mode, reply_markup=reply_markup)
+            number += 1
+        return {'successfully_sent': number, 'error': len(users) - number}
+
+    async def send_message(self, chat_id: Union[int, str], text: str, parse_mode: Literal['HTML', 'MARKDOWN'] = None, reply_markup: Union[ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove] = ReplyKeyboardMarkup()) -> Message:
+        return await self.methods.SendMessage(chat_id, text, reply_markup.reply_markup, parse_mode=parse_mode if parse_mode else self.parse_mode)
+
+    async def edit_message_text(self, chat_id: Union[int, str], text: str, message_id: int, parse_mode: str, reply_markup: InlineKeyboardMarkup = InlineKeyboardMarkup()) -> Message:
+        return await self.methods.EditMessageText(chat_id=chat_id, text=text, message_id=message_id, reply_markup=reply_markup.reply_markup, parse_mode=parse_mode if parse_mode else self.parse_mode)
+
+    async def send_photo(self, chat_id: Union[int, str], photo: Union[InputFile, str], caption: str = None, parse_mode: Literal['HTML', 'MARKDOWN'] = None, reply_markup: Union[ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove] = ReplyKeyboardMarkup()) -> Message:
+        return await self.methods.SendPhoto(chat_id=chat_id, photo=photo, caption=caption, parse_mode=parse_mode if parse_mode else self.parse_mode, reply_markup=reply_markup.reply_markup)
+
+    async def get_me(self) -> User:
         return await self.methods.GetMe()
 
     async def get_updates(self, allowed_updates: list | None, offset: int = None):

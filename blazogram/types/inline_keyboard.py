@@ -10,9 +10,10 @@ class InlineKeyboardButton:
 
 
 def get_button(button: InlineKeyboardButton):
-    if button.callback_data:
-        return {'text': button.text, 'callback_data': button.callback_data}
-    return {'text': button.text, 'url': button.url}
+    but = {'text': button.text}
+    param = {'callback_data': button.callback_data} if button.callback_data else {'url': button.url}
+    but.update(param)
+    return but
 
 
 class InlineKeyboardMarkup:

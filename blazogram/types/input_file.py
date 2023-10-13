@@ -1,8 +1,11 @@
-from aiohttp import FormData
+import asyncio
 
 
 class InputFile:
-    def __init__(self, file_type: str, filename: str):
-        self.data = FormData()
+    def __init__(self, filename: str):
         self.file = open(filename, 'rb')
-        self.data.add_field(file_type, value=self.file, filename=filename, content_type='multipart/form-data')
+        asyncio.create_task(self.close_file())
+
+    async def close_file(self):
+        await asyncio.sleep(5)
+        self.file.close()
