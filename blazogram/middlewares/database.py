@@ -14,4 +14,4 @@ class DatabaseMiddleware(BaseMiddleware):
                        data: dict):
         await self.database.add_user(user=update.from_user)
         data['database'] = self.database
-        return await handler(data)
+        return await handler()

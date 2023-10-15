@@ -1,7 +1,11 @@
 from .methods import Methods
-from ..types import Message, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardMarkup, InputFile, User
+from ..types.message import Message
+from ..types.reply_keyboard import ReplyKeyboardMarkup, ReplyKeyboardRemove
+from ..types.inline_keyboard import InlineKeyboardMarkup
+from ..types.input_file import InputFile
+from ..types.user import User
+from ..types.chat import Chat
 from ..database.base import Database
-from ..exceptions import DatabaseError
 from typing import Union, Literal
 
 
@@ -17,9 +21,6 @@ class Bot:
         self.database = database
 
     async def send_all(self, text: str, parse_mode: Literal['HTML', 'MARKDOWN'] = None, reply_markup: Union[ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove] = ReplyKeyboardMarkup()) -> dict:
-        if not self.database:
-            raise DatabaseError(message='Database is not connected.')
-
         number = 0
         users = await self.database.get_users()
         for user in users:
@@ -51,5 +52,5 @@ class Bot:
     async def delete_message(self, chat_id: int, message_id: int):
         return await self.methods.DeleteMessage(chat_id=chat_id, message_id=message_id)
 
-    async def get_chat(self, chat_id: int):
+    async def get_chat(self, chat_id: int) -> Chat:
         return await self.methods.GetChat(chat_id=chat_id)

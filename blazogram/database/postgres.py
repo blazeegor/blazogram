@@ -2,7 +2,7 @@ from .base import Database
 import asyncpg
 import asyncio
 from asyncpg import Connection
-from ..types.objects import User
+from ..types.user import User
 from ..exceptions import DatabaseError
 
 
@@ -13,13 +13,13 @@ class PostgreSQL(Database):
         self.password = password
         self.database = database
         self.port = port
+        self.connection = None
         asyncio.create_task(self.start())
-        self.connection: Connection | None = None
 
     async def start(self):
         connection: Connection = await asyncpg.connect(host=self.host, user=self.user, password=self.password, port=self.port)
-        await connection.execute('CREATE TABLE IF NOT EXISTS users (id bigint NOT NULL GENERATED ALWAYS AS IDENTITY (INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1), user_id bigint, first_name text, last_name text, username text, is_bot text)')
         self.connection = connection
+        await self.request('CREATE TABLE IF NOT EXISTS users (id bigint NOT NULL GENERATED ALWAYS AS IDENTITY (INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1), user_id bigint, first_name text, last_name text, username text, is_bot text)')
 
     async def request(self, query: str, params: tuple = None):
         try:

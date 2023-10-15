@@ -20,7 +20,7 @@ BLAZOGRAM - is a library for make Telegram Bots.
   from blazogram import Bot, Dispatcher
   from blazogram.types import Message, CallbackQuery, ReplyKeyboardMarkup, KeyboardButton
   from blazogram.filters import Command, Data
-  from blazogram.utils import ParseMode
+  from blazogram.enums import ParseMode
   import asyncio
 
 
@@ -39,9 +39,12 @@ BLAZOGRAM - is a library for make Telegram Bots.
       bot = Bot(token='YOUR-BOT-TOKEN', parse_mode=ParseMode.HTML)
       dp = Dispatcher()
       dp.message.register(start_command, Command("start"))
-      dp.message.register(some_func, Data("BUTTON_DATA"))
+      dp.callback_query.register(some_func, Data("BUTTON_DATA"))
       await bot.skip_updates()
-      await dp.start_polling(bot)
+      try:
+          await dp.start_polling(bot)
+      finally:
+          await bot.session.close()
 
 
   if __name__ == '__main__':

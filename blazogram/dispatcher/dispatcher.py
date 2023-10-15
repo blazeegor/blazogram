@@ -1,13 +1,12 @@
 from ..bot.bot import Bot
 from .router import Router
-from ..types import Message, CallbackQuery, Chat, User
-from ..types.documents_types import PhotoSize
+from ..types import Update, Message, CallbackQuery
 from ..fsm.storage.base import BaseStorage, UserKey
 from ..fsm.storage.memory import MemoryStorage
 from ..fsm.context import FSMContext
 from ..filters import StateFilter
 from ..scheduler import BlazeScheduler
-from ..database.base import Database
+from ..database import Database, MemoryDatabase
 from ..middlewares.database import DatabaseMiddleware
 
 from ..middlewares.handler_middlewares import HandlerMiddlewares
@@ -41,7 +40,7 @@ def get_data(args: list, bot: Bot, dispatcher, fsm_context: FSMContext, my_data:
 
 
 class Dispatcher(Router):
-    def __init__(self, scheduler: BlazeScheduler = BlazeScheduler(), fsm_storage: BaseStorage = MemoryStorage(), database: Database = None):
+    def __init__(self, scheduler: BlazeScheduler = BlazeScheduler(), fsm_storage: BaseStorage = MemoryStorage(), database: Database = MemoryDatabase()):
         super().__init__()
         self.data = Data()
         self.scheduler = scheduler
@@ -73,45 +72,19 @@ class Dispatcher(Router):
             updates = await bot.get_updates(offset=offset, allowed_updates=allowed_updates)
             if updates:
                 await asyncio.wait([asyncio.create_task(self._feed_update(update=update, handlers=self.handlers, bot=bot)) for update in updates])
-                offset = [update['update_id'] for update in updates][-1] + 1
+                offset = [update.update_id for update in updates][-1] + 1
 
-    async def _feed_update(self, update: dict, handlers: list, bot: Bot):
+    async def _feed_update(self, update: Update, handlers: list, bot: Bot):
         for handler in handlers:
-            if handler.update in update.keys():
+            if handler.update in update.update:
                 check = True
 
                 if handler.update == 'message':
-                    message = update['message']
-                    chat = Chat(id=message['chat']['id'], type=message['chat']['type'],
-                                first_name=message['chat']['first_name'], username=message['chat']['username'])
-                    user = User(id=message['from']['id'], is_bot=message['from']['is_bot'],
-                                first_name=message['from']['first_name'], username=message['from']['username'])
-
-                    arguments = dict()
-                    arguments['text'] = None if 'text' not in message.keys() else message['text']
-                    arguments['caption'] = None if 'caption' not in message.keys() else message['caption']
-                    photo = [PhotoSize(file_id=photo_size['file_id'], file_unique_id=photo_size['file_unique_id'],
-                                       height=photo_size['height'], width=photo_size['width'],
-                                       file_size=photo_size['file_size']) for photo_size in
-                             message['photo']] if 'photo' in message.keys() else None
-                    arguments['photo'] = photo
-
-                    event = Message(bot=bot, message_id=message['message_id'], chat=chat, user=user, **arguments)
+                    event = update.message
                     user_key = UserKey(chat_id=event.chat.id, user_id=event.from_user.id)
 
                 elif handler.update == 'callback_query':
-                    callback_query = update['callback_query']
-                    message = callback_query['message']
-                    user = User(id=callback_query['from']['id'], is_bot=callback_query['from']['is_bot'], first_name=callback_query['from']['first_name'], username=callback_query['from']['username'])
-
-                    arguments = dict()
-                    arguments['text'] = None if 'text' not in message.keys() else message['text']
-                    arguments['caption'] = None if 'caption' not in message.keys() else message['caption']
-                    photo = [PhotoSize(file_id=photo_size['file_id'], file_unique_id=photo_size['file_unique_id'], height=photo_size['height'], width=photo_size['width'], file_size=photo_size['file_size']) for photo_size in message['photo']] if 'photo' in message.keys() else None
-                    arguments['photo'] = photo
-
-                    message = Message(bot=bot, message_id=message['message_id'], user=User(id=message['from']['id'], is_bot=message['from']['is_bot'], first_name=message['from']['first_name'], username=message['from']['username']), chat=Chat(id=message['chat']['id'], type=message['chat']['type'], first_name=message['chat']['first_name'], username=message['chat']['username']), **arguments)
-                    event = CallbackQuery(bot=bot, callback_query_id=callback_query['id'], data=callback_query['data'], message=message, user=user)
+                    event = update.callback_query
                     user_key = UserKey(chat_id=event.message.chat.id, user_id=event.from_user.id)
 
                 else:
@@ -119,9 +92,9 @@ class Dispatcher(Router):
                     event = None
                     user_key = None
 
-                filters = handler.filters
                 fsm_context = FSMContext(key=user_key, storage=self.fsm_storage)
-                for Filter in filters:
+
+                for Filter in handler.filters:
                     argument = event if not isinstance(Filter, StateFilter) else await fsm_context.get_state()
                     if not await Filter.__check__(argument):
                         check = False

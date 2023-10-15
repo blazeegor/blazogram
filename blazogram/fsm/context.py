@@ -7,7 +7,7 @@ class FSMContext:
         self.key = key
         self.storage = storage
 
-    async def set_state(self, state: State) -> None:
+    async def set_state(self, state: State | None) -> None:
         return await self.storage.set_state(key=self.key, state=state)
 
     async def get_state(self) -> State:

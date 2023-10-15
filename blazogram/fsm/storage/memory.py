@@ -26,13 +26,3 @@ class MemoryStorage(BaseStorage):
     async def set_data(self, key: UserKey, data: dict) -> dict:
         self.storage[key].data = data
         return data.copy()
-
-    async def update_data(self, key: UserKey, data: dict) -> dict:
-        current_data = await self.get_data(key=key)
-        current_data.update(data)
-        await self.set_data(key=key, data=current_data)
-        return current_data.copy()
-
-    async def clear(self, key: UserKey) -> None:
-        self.storage[key].state = None
-        self.storage[key].data = {}

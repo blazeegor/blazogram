@@ -1,16 +1,16 @@
 from .base import Database
-from ..types.objects import User
+from ..types.user import User
 from ..exceptions import DatabaseError
 from pathlib import Path
 from typing import Union
 import aiosqlite
-from aiosqlite import OperationalError, Cursor, Connection
+from aiosqlite import Cursor, Connection
 import asyncio
 
 
 class SQLite3(Database):
-    def __init__(self, database: Union[str, Path] = 'database.db'):
-        self._filename = database
+    def __init__(self, connection: Connection):
+        self.connection = connection
         asyncio.create_task(self.start())
 
     async def start(self):
@@ -18,29 +18,26 @@ class SQLite3(Database):
         await self.request(query=query)
 
     async def request(self, query: str, params: tuple = None):
-        async with aiosqlite.connect(self._filename) as database:
-            await database.execute(query, params)
-            await database.commit()
-            await database.close()
+        await self.connection.execute(query, params)
+        await self.connection.commit()
 
     async def select(self, table: str, columns: list[str] | str, params: dict = None, fetch_all: bool = False, fetch_number: int = 1):
-        async with aiosqlite.connect(self._filename) as database:
-            cursor: Cursor = await database.cursor()
+        cursor: Cursor = await self.connection.cursor()
 
-            if isinstance(columns, list):
-                take_columns = ''
-                for column in columns:
-                    take_columns += column + ', '
-                columns = take_columns[: -2]
+        if isinstance(columns, list):
+            take_columns = ''
+            for column in columns:
+                take_columns += column + ', '
+            columns = take_columns[: -2]
 
-            params_query = 'WHERE ' if params else None
-            if params:
-                for key, value in params.items():
-                    params_query += key + ' = ' + value + ' '
+        params_query = 'WHERE ' if params else None
+        if params:
+            for key, value in params.items():
+                params_query += key + ' = ' + value + ' '
 
-            result = await cursor.execute(f'SELECT {columns} FROM {table} {params_query}')
-            result = await result.fetchmany(fetch_number)  if fetch_all is False else await result.fetchall()
-            return result
+        result = await cursor.execute(f'SELECT {columns} FROM {table} {params_query}')
+        result = await result.fetchmany(fetch_number)  if fetch_all is False else await result.fetchall()
+        return result
 
     async def user_exist(self, user: User) -> bool:
         users = await self.get_users()
@@ -54,9 +51,11 @@ class SQLite3(Database):
                 raise DatabaseError(message=ex.__str__())
 
     async def get_users(self) -> list[User]:
-        async with aiosqlite.connect(self._filename) as database:
-            cursor: Cursor = await database.cursor()
-            result = await cursor.execute('SELECT user_id, first_name, last_name, username, is_bot FROM users')
-            users_res = await result.fetchall()
-            users = [User(id=user[0], first_name=user[1], last_name=user[2] if user[2] != 'None' else None, username=user[3], is_bot=True if user[4] == 'True' else False) for user in users_res]
-            return users
+        cursor: Cursor = await self.connection.cursor()
+        result = await cursor.execute('SELECT user_id, first_name, last_name, username, is_bot FROM users')
+        users_res = await result.fetchall()
+        users = [User(id=user[0], first_name=user[1], last_name=user[2] if user[2] != 'None' else None, username=user[3], is_bot=True if user[4] == 'True' else False) for user in users_res]
+        return users
+
+    async def close(self):
+        await self.connection.close()

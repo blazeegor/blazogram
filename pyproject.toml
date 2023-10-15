@@ -1,10 +1,10 @@
 [build-system]
-requires = ["aiohttp", 'setuptools']
+requires = ["aiohttp", 'redis', 'aiosqlite', 'asyncpg', 'setuptools']
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "blazogram"
-version = "1.0.1"
+version = "2.0.0"
 authors = [
   { name="EgorBlaze", email="blazeegor@gmail.com" },
 ]

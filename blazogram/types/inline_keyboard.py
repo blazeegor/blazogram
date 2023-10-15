@@ -17,17 +17,17 @@ def get_button(button: InlineKeyboardButton):
 
 
 class InlineKeyboardMarkup:
-    def __init__(self):
-        self.buttons = []
-        self.reply_markup = json.dumps({'inline_keyboard': self.buttons})
+    def __init__(self, inline_keyboard: list[[InlineKeyboardButton]] = None):
+        self.buttons: list[[InlineKeyboardButton]] = [] if not inline_keyboard else [get_button(but[0]) for but in inline_keyboard]
+
+    @property
+    def reply_markup(self) -> str:
+        return json.dumps({'inline_keyboard': self.buttons})
 
     def add_button(self, button: InlineKeyboardButton):
         if button.url is not None and button.callback_data is None or button.url is None and button.callback_data is not None:
             button = get_button(button)
             self.buttons.append([button])
-            reply_markup = json.loads(self.reply_markup)
-            reply_markup['inline_keyboard'] = self.buttons
-            self.reply_markup = json.dumps(reply_markup)
         else:
             raise ValueError('Inline Keyboard Button must to have a callback_data or url.')
 

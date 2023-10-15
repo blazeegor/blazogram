@@ -1,8 +1,7 @@
-from ..types import User, Chat, Message, PhotoSize, InputFile
+from ..types import User, Chat, Message, CallbackQuery, PhotoSize, InputFile, ChatPhoto, Update, InlineKeyboardMarkup, InlineKeyboardButton
 from ..exceptions import TelegramBadRequest
 from typing import Union
 import aiohttp
-import json
 
 
 class Methods:
@@ -10,11 +9,47 @@ class Methods:
         self.bot = bot
         self.session = aiohttp.ClientSession()
 
-    async def GetUpdates(self, offset: int | None, allowed_updates: list | None):
+    async def GetUpdates(self, offset: int | None, allowed_updates: list | None) -> list[Update]:
         response = await self.session.get(url=f'https://api.telegram.org/bot{self.bot.token}/getUpdates?offset={offset}&allowed_updates={allowed_updates}')
         data = await response.json()
         if data['ok'] is True:
-            return data['result']
+            updates = []
+
+            for update in data['result']:
+                if 'message' in update.keys():
+                    message = update['message']
+
+                    message['chat'] = Chat(**message['chat'])
+                    message['from_user'] = User(**message['from'])
+                    message['photo'] = [PhotoSize(**photo_size) for photo_size in message['photo']] if 'photo' in message.keys() else None
+                    message['reply_markup'] = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(**button[0])] for button in message['reply_markup']['inline_keyboard']]) if 'reply_markup' in message.keys() else None
+
+                    message.pop('from')
+
+                    update['message'] = Message(bot=self.bot, **message)
+                    update['update'] = 'message'
+
+                elif 'callback_query' in update.keys():
+                    callback_query = update['callback_query']
+                    message = callback_query['message']
+
+                    callback_query['from_user'] = User(**callback_query['from'])
+                    message['chat'] = Chat(**message['chat'])
+                    message['from_user'] = User(**message['from'])
+                    message['photo'] = [PhotoSize(**photo_size) for photo_size in message['photo']] if 'photo' in message.keys() else None
+                    message['reply_markup'] = InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(**button[0])] for button in message['reply_markup']['inline_keyboard']]) if 'reply_markup' in message.keys() else None
+
+                    callback_query.pop('from')
+                    message.pop('from')
+
+                    callback_query['message'] = Message(bot=self.bot, **message)
+
+                    update['callback_query'] = CallbackQuery(bot=self.bot, **callback_query)
+                    update['update'] = 'callback_query'
+
+                updates.append(Update(**update))
+
+            return updates
         else:
             raise TelegramBadRequest(message=data["description"])
 
@@ -33,9 +68,11 @@ class Methods:
         data = await response.json()
         if data['ok'] is True:
             message = data['result']
-            chat = Chat(id=message['chat']['id'], type=message['chat']['type'], username=message['chat']['username'], first_name=message['chat']['first_name'])
-            user = User(id=message['from']['id'], is_bot=message['from']['is_bot'], username=message['from']['username'], first_name=message['from']['first_name'], last_name=None if 'last_name' not in message['from'].keys() else message['from']['last_name'])
-            return Message(bot=self.bot, message_id=message['message_id'], text=message['text'], chat=chat, user=user)
+            message['chat']['photo'] = None if 'photo' not in message['chat'].keys() else ChatPhoto(**message['chat']['photo'])
+            message['chat'] = Chat(**message['chat'])
+            message['from_user'] = User(**message['from'])
+            message.pop('from')
+            return Message(bot=self.bot, **message)
         else:
             raise TelegramBadRequest(message=data["description"])
 
@@ -46,9 +83,10 @@ class Methods:
         data = await response.json()
         if data['ok'] is True:
             message = data['result']
-            chat = Chat(id=message['chat']['id'], type=message['chat']['type'], username=message['chat']['username'], first_name=message['chat']['first_name'])
-            user = User(id=message['from']['id'], is_bot=message['from']['is_bot'], username=message['from']['username'], first_name=message['from']['first_name'], last_name=None if 'last_name' not in message['from'].keys() else message['from']['last_name'])
-            return Message(bot=self.bot, message_id=message['message_id'], text=message['text'], chat=chat, user=user)
+            message['chat'] = Chat(**message['chat'])
+            message['from_user'] = User(**message['from'])
+            message.pop('from')
+            return Message(bot=self.bot, **message)
         else:
             raise TelegramBadRequest(message=data["description"])
 

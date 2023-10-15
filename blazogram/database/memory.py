@@ -1,5 +1,5 @@
 from .base import Database
-from ..types.objects import User
+from ..types.user import User
 
 
 class MemoryDatabase(Database):

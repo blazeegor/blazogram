@@ -10,12 +10,14 @@ class HandlerMiddlewares:
         self.data = data
         self.number = 0
 
-    async def __call__(self, data: dict = {}):
+    async def __call__(self):
         self.number += 1
-        self.data.update({key: value for key, value in data.items() if key in self.args})
         if self.number == len(self.middlewares):
+            for key in [key for key in self.data.keys()]:
+                if key not in self.args:
+                    self.data.pop(key)
             await self.func(self.update, **self.data)
 
     async def start(self):
         for middleware in self.middlewares:
-            await middleware(handler=self, update=self.update, data={})
+            await middleware(handler=self, update=self.update, data=self.data)
