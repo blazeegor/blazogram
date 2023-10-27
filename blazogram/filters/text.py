@@ -2,7 +2,6 @@ from .base import BaseFilter
 from ..types.message import Message
 from ..exceptions import FilterError
 
-
 class Text(BaseFilter):
     def __init__(self, text: str = None, startswith: str = None, endswith: str = None):
         if text and (startswith or endswith):
