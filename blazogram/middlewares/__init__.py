@@ -1,2 +1,2 @@
-from .base import (BaseMiddleware)
-from .throttling import (ThrottlingMiddleware)
+from .base import BaseMiddleware
+from .throttling import ThrottlingMiddleware

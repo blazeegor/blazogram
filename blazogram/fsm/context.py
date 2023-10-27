@@ -1,14 +1,14 @@
 from .storage.base import BaseStorage, UserKey
 from .state import State
-
+from typing import Union
 
 class FSMContext:
     def __init__(self, key: UserKey, storage: BaseStorage):
         self.key = key
         self.storage = storage
 
-    async def set_state(self, state: State | None) -> None:
-        return await self.storage.set_state(key=self.key, state=state)
+    async def set_state(self, state: Union[State, None]) -> None:
+        await self.storage.set_state(key=self.key, state=state)
 
     async def get_state(self) -> State:
         return await self.storage.get_state(key=self.key)
