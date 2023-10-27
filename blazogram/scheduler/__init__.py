@@ -1,1 +1,1 @@
-from .scheduler import (BlazeScheduler)
+from .scheduler import BlazeScheduler
