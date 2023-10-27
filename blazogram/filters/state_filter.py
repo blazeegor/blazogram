@@ -7,4 +7,4 @@ class StateFilter(BaseFilter):
         self.state = state
 
     async def __check__(self, state: State) -> bool:
-        return self.state == state
+        return self.state is state
