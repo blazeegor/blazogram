@@ -2,20 +2,19 @@ from .base import BaseFilter
 from ..types.callback_query import CallbackQuery
 from ..exceptions import FilterError
 
-
 class Data(BaseFilter):
-    def __init__(self, data: str = None, startswith: str = None, endswith: str = None):
-        if data and startswith is None and endswith is None or startswith and data is None or endswith and data is None:
+    def __init__(self, data: str = None, starts_with: str = None, ends_with: str = None):
+        if data and (starts_with or ends_with):
             self.data = data
-            self.startswith = startswith
-            self.endswith = endswith
+            self.starts_with = starts_with
+            self.ends_with = ends_with
         else:
-            raise FilterError(message='Filter Data most have a one argument.')
+            raise FilterError(message='Filter Data must have exactly one argument.')
 
     async def __check__(self, callback_query: CallbackQuery) -> bool:
         if self.data is not None:
             return callback_query.data == self.data
-        elif self.startswith is not None:
-            return callback_query.data.startswith(self.startswith)
+        elif self.starts_with is not None:
+            return callback_query.data.startswith(self.starts_with)
         else:
-            return callback_query.data.endswith(self.endswith)
+            return callback_query.data.endswith(self.ends_with)
