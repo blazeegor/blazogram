@@ -1,7 +1,6 @@
 from .base import BaseFilter
 from ..fsm.state import State
 
-
 class StateFilter(BaseFilter):
     def __init__(self, state: State):
         self.state = state
