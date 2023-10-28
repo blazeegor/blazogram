@@ -1,5 +1,5 @@
 [build-system]
-requires = ["aiohttp", "redis", "aiosqlite", "asyncpg", "setuptools"]
+requires = ["aiohttp", "redis", "aiosqlite", "asyncpg", "setuptools", "locute"]
 build-backend = "setuptools.build_meta"
 
 [project]

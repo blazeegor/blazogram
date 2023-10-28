@@ -47,4 +47,27 @@ Example Usage
     if __name__ == '__main__':
         asyncio.run(main())
 
+Localization
+============
+
+.. code-block:: python
+
+    from blazogram import BlazeLocale
+    ...
+
+    async def hello_handler(message: Message, i18n):
+        await message.answer(i18n.format_value("hello"))
+
+    async def main():
+        bot = Bot(...)
+
+        locales = Path(__file__).parent / "locales"
+        i18n = BlazeLocale(locales)
+
+        dp = Dispatcher()
+        dp["i18n"] = i18n.get_locale("ru")
+
+        dp.message.register(hello_handler, Command("hello")
+        await dp.start_polling(bot)
+
 **Developer: @Blaze Egor**
