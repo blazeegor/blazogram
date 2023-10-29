@@ -29,10 +29,9 @@ class ThrottlingMiddleware(BaseMiddleware):
             if datetime.now() - self.storage[key].date > timedelta(seconds=self.delay):
                 self.storage.pop(key)
                 return await handler()
-            else:
-                data_key = self.storage[key].replace(is_message=False)
-                self.storage[key] = data_key
-                return await update.answer(text=self.message)
+            data_key = self.storage[key].replace(is_message=False)
+            self.storage[key] = data_key
+            return await update.answer(text=self.message)
         else:
             data_key = DataKey(date=datetime.now(), is_message=True)
             self.storage[key] = data_key

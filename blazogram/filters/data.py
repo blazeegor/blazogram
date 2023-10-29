@@ -14,7 +14,6 @@ class Data(BaseFilter):
     async def __check__(self, callback_query: CallbackQuery) -> bool:
         if self.data is not None:
             return callback_query.data == self.data
-        elif self.starts_with is not None:
+        if self.starts_with is not None:
             return callback_query.data.startswith(self.starts_with)
-        else:
-            return callback_query.data.endswith(self.ends_with)
+        return callback_query.data.endswith(self.ends_with)

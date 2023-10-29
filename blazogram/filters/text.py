@@ -14,9 +14,8 @@ class Text(BaseFilter):
     async def __check__(self, message: Message) -> bool:
         if self.text is not None:
             return message.text == self.text
-        elif self.startswith is not None:
+        if self.startswith is not None:
             return message.text.startswith(self.startswith)
-        elif self.endswith is not None:
+        if self.endswith is not None:
             return message.text.endswith(self.endswith)
-        else:
-            return False
+        return False
