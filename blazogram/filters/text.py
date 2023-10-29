@@ -6,7 +6,7 @@ class Text(BaseFilter):
     def __init__(self, text: str = None, startswith: str = None, endswith: str = None):
         if text and (startswith or endswith):
             raise FilterError('Filter Text should have only one argument.')
-        
+
         self.text = text
         self.startswith = startswith
         self.endswith = endswith
