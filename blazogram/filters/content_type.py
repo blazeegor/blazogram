@@ -9,7 +9,6 @@ class ContentType(BaseFilter):
     async def __check__(self, message: Message) -> bool:
         if self.content_type == 'text':
             return message.text is not None
-        elif self.content_type == 'photo':
+        if self.content_type == 'photo':
             return message.photo is not None
-        else:
-            return False
+        return False
