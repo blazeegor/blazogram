@@ -57,7 +57,7 @@ class PostgreSQL(Database):
 
     async def get_users(self) -> list[User]:
         result = await self.connection.fetch('SELECT user_id, first_name, last_name, username, is_bot FROM users')
-        users = [User(id=user.get('user_id'), first_name=user.get('first_name'), last_name=user.get('last_name') if user.get('last_name') != 'None' else None, username=user.get('username'), is_bot=True if user.get('is_bot') == 'True' else False) for user in result]
+        users = [User(id=user.get('user_id'), first_name=user.get('first_name'), last_name=user.get('last_name') if user.get('last_name') != 'None' else None, username=user.get('username'), is_bot=user.get('is_bot') == 'True') for user in result]
         return users
 
     async def close(self):

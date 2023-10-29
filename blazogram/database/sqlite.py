@@ -54,7 +54,7 @@ class SQLite3(Database):
         cursor: Cursor = await self.connection.cursor()
         result = await cursor.execute('SELECT user_id, first_name, last_name, username, is_bot FROM users')
         users_res = await result.fetchall()
-        users = [User(id=user[0], first_name=user[1], last_name=user[2] if user[2] != 'None' else None, username=user[3], is_bot=True if user[4] == 'True' else False) for user in users_res]
+        users = [User(id=user[0], first_name=user[1], last_name=user[2] if user[2] != 'None' else None, username=user[3], is_bot=user[4] == 'True') for user in users_res]
         return users
 
     async def close(self):
