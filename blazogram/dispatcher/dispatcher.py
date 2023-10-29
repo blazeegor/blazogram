@@ -52,7 +52,7 @@ class Dispatcher(Router):
             self.register_middleware(DatabaseMiddleware(database=database))
 
     def include_router(self, router: Router):
-        self.handlers.extend([handler for handler in router.handlers])
+        self.handlers.extend(list(router.handlers))
 
     def include_routers(self, *routers: Router):
         for router in routers:
