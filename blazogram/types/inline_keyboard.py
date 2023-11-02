@@ -10,27 +10,61 @@ class InlineKeyboardButton:
     url: str = None
 
 
-class InlineButtonsLine:
+def get_button_dict(button: InlineKeyboardButton) -> dict:
+    button_dict = {'text': button.text}
+
+    if button.callback_data:
+        button_dict['callback_data'] = button.callback_data
+
+    if button.url:
+        button_dict['url'] = button.url
+
+    return button_dict
+
+
+class InlineKeyboardLine:
     def __init__(self, *buttons: InlineKeyboardButton):
         self.buttons = list(buttons)
 
+    def add_buttons(self, *buttons: InlineKeyboardButton):
+        self.buttons.extend(buttons)
 
-def get_button(button: InlineKeyboardButton) -> dict:
-    but = {'text': button.text}
-    param = {'callback_data': button.callback_data} if button.callback_data else {'url': button.url}
-    but.update(param)
-    return but
+    def __len__(self) -> int:
+        return len(self.buttons)
+
+    def __iter__(self):
+        self.iter_buttons = iter(self.buttons)
+        return self
+
+    def __next__(self):
+        return self.iter_buttons.__next__()
+
+
+class InlineKeyboard:
+    def __init__(self, *lines: InlineKeyboardLine):
+        self.lines = list(lines)
+
+    def add_lines(self, *lines: InlineKeyboardLine):
+        self.lines.extend(lines)
+
+    def __iter__(self):
+        self.iter_lines = iter(self.lines)
+        return self
+
+    def __next__(self):
+        return self.iter_lines.__next__()
 
 
 class InlineKeyboardMarkup:
-    def __init__(self, inline_keyboard: list[InlineButtonsLine] = None, row_width: int = 3):
+    def __init__(self, inline_keyboard: InlineKeyboard = None, row_width: int = 3):
         self.row_width = row_width
+
         if inline_keyboard:
             for line in inline_keyboard:
-                if len(line.buttons) > row_width:
+                if len(line) > row_width:
                     raise KeyboardError(message='The number of buttons in a line cannot be more row width.')
 
-            self.buttons = [[get_button(button) for button in line.buttons] for line in inline_keyboard]
+            self.buttons = [[get_button_dict(button) for button in line] for line in inline_keyboard]
         else:
             self.buttons = [[]]
 
@@ -42,7 +76,7 @@ class InlineKeyboardMarkup:
         if button.callback_data and button.url:
             raise KeyboardError(message='Inline Keyboard Button must to have a callback_data or url.')
 
-        button_dict = get_button(button)
+        button_dict = get_button_dict(button)
         if len(self.buttons[-1]) >= self.row_width:
             self.buttons.append([button_dict])
         else:
@@ -50,7 +84,7 @@ class InlineKeyboardMarkup:
 
     def add_buttons(self, *buttons: InlineKeyboardButton, is_row: bool = False):
         if is_row:
-            self.buttons.append([get_button(button) for button in buttons])
+            self.buttons.append([get_button_dict(button) for button in buttons])
         else:
             for button in buttons:
                 self.add_button(button)

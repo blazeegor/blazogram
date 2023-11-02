@@ -40,7 +40,7 @@ def get_data(args: list, bot: Bot, dispatcher, fsm_context: FSMContext, my_data:
 
 
 class Dispatcher(Router):
-    def __init__(self, scheduler: BlazeScheduler = BlazeScheduler(), fsm_storage: BaseStorage = MemoryStorage(), database: Database = MemoryDatabase()):
+    def __init__(self, scheduler: BlazeScheduler = BlazeScheduler(), fsm_storage: BaseStorage = MemoryStorage(), database: Database | None = MemoryDatabase()):
         super().__init__()
         self.data = Data()
         self.scheduler = scheduler
