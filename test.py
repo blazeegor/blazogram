@@ -7,7 +7,7 @@ bot = Bot(token='6091490850:AAGyqrHphgeVhF-jGBAPLp1waazyoJsDgpQ')
 dp = Dispatcher()
 
 
-@dp.callback_query(data='data')
+@dp.callback_query()
 async def test(callback: CallbackQuery):
     await callback.message.delete()
 
