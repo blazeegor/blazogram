@@ -1,5 +1,5 @@
-from .base import BaseFilter
 from ..fsm.state import State
+from .base import BaseFilter
 
 
 class StateFilter(BaseFilter):

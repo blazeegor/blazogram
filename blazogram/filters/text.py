@@ -1,6 +1,6 @@
-from .base import BaseFilter
-from ..types.message import Message
 from ..exceptions import FilterError
+from ..types.message import Message
+from .base import BaseFilter
 
 
 class Text(BaseFilter):

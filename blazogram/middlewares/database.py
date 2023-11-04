@@ -1,7 +1,8 @@
-from .base import BaseMiddleware
-from ..database.base import Database
-from ..types import Message, CallbackQuery
 from typing import Union
+
+from ..database.base import Database
+from ..types import CallbackQuery, Message
+from .base import BaseMiddleware
 
 
 class DatabaseMiddleware(BaseMiddleware):

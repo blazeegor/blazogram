@@ -1,7 +1,8 @@
-from .user import User
-from .message import Message
-from typing import Any
 from dataclasses import dataclass
+from typing import Any
+
+from .message import Message
+from .user import User
 
 
 @dataclass

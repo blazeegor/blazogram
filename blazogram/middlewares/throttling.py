@@ -1,8 +1,9 @@
-from .base import BaseMiddleware
-from ..types import Message
 from dataclasses import dataclass
-from typing import Callable, Awaitable, Any
 from datetime import datetime, timedelta
+from typing import Any, Awaitable, Callable
+
+from ..types import Message
+from .base import BaseMiddleware
 
 
 @dataclass(frozen=True)

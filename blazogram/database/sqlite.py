@@ -1,8 +1,10 @@
-from .base import Database
-from ..types.user import User
-from ..exceptions import DatabaseError
-from aiosqlite import connect, Cursor, Connection
 import asyncio
+
+from aiosqlite import Connection, Cursor, connect
+
+from ..exceptions import DatabaseError
+from ..types.user import User
+from .base import Database
 
 
 class SQLite3(Database):

@@ -1,7 +1,8 @@
-from .base import BaseStorage, UserKey
-from ..state import State
-from dataclasses import dataclass, field
 from collections import defaultdict
+from dataclasses import dataclass, field
+
+from ..state import State
+from .base import BaseStorage, UserKey
 
 
 @dataclass

@@ -1,6 +1,6 @@
-from .base import BaseFilter
-from ..types.callback_query import CallbackQuery
 from ..exceptions import FilterError
+from ..types.callback_query import CallbackQuery
+from .base import BaseFilter
 
 
 class Data(BaseFilter):

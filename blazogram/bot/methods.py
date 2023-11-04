@@ -1,7 +1,11 @@
-from ..types import User, Chat, Message, CallbackQuery, PhotoSize, Video, InputFile, ChatPhoto, Update, InlineKeyboardMarkup, InlineKeyboardButton
-from ..exceptions import TelegramBadRequest
 from typing import Union
+
 import aiohttp
+
+from ..exceptions import TelegramBadRequest
+from ..types import (CallbackQuery, Chat, ChatPhoto, InlineKeyboardButton,
+                     InlineKeyboardMarkup, InputFile, Message, PhotoSize,
+                     Update, User, Video)
 
 
 class Methods:
@@ -180,7 +184,7 @@ class Methods:
         else:
             raise TelegramBadRequest(message=data["description"])
 
-    async def DeleteMessage(self, chat_id: int, message_id: int):
+    async def DeleteMessage(self, chat_id: int, message_id: int) -> bool:
         response = await self.session.get(url=f'https://api.telegram.org/bot{self.bot.token}/deleteMessage?chat_id={chat_id}&message_id={message_id}')
         data = await response.json()
         if data['ok'] is True:

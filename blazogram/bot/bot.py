@@ -1,15 +1,16 @@
-from .methods import Methods
-from ..types.message import Message
-from ..types.reply_keyboard import ReplyKeyboardMarkup, ReplyKeyboardRemove
-from ..types.inline_keyboard import InlineKeyboardMarkup
-from ..types.input_file import InputFile
-from ..types.user import User
-from ..types.chat import Chat
-from ..types.update import Update
+import asyncio
+from typing import Literal, Union, Tuple
+
 from ..database.base import Database
 from ..exceptions import TelegramBadRequest
-from typing import Union, Literal
-import asyncio
+from ..types.chat import Chat
+from ..types.inline_keyboard import InlineKeyboardMarkup
+from ..types.input_file import InputFile
+from ..types.message import Message
+from ..types.reply_keyboard import ReplyKeyboardMarkup, ReplyKeyboardRemove
+from ..types.update import Update
+from ..types.user import User
+from .methods import Methods
 
 
 class Bot:
@@ -23,7 +24,7 @@ class Bot:
     async def connect_database(self, database: Database) -> None:
         self.database = database
 
-    async def send_all(self, text: str = None, photo: Union[str, InputFile] = None, video: Union[str, InputFile] = None, parse_mode: str = None, reply_markup: Union[ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove] = ReplyKeyboardMarkup()) -> tuple:
+    async def send_all(self, text: str = None, photo: Union[str, InputFile] = None, video: Union[str, InputFile] = None, parse_mode: str = None, reply_markup: Union[ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove] = ReplyKeyboardMarkup()) -> Tuple[int]:
         number = 0
         users = await self.database.get_users()
         data = {'parse_mode': parse_mode, 'reply_markup': reply_markup}
@@ -39,7 +40,7 @@ class Bot:
             except TelegramBadRequest:
                 pass
             number += 1
-        return (number, len(users) - number,)
+        return (number, len(users) - number)
 
     async def send_message(self, chat_id: Union[int, str], text: str, parse_mode: Literal['HTML', 'MARKDOWN'] = None, reply_markup: Union[ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove] = ReplyKeyboardMarkup()) -> Message:
         return await self.methods.SendMessage(chat_id, text, reply_markup.reply_markup, parse_mode=parse_mode if parse_mode else self.parse_mode)
@@ -68,7 +69,7 @@ class Bot:
     async def answer_callback_query(self, callback_query_id: int, text: str = None, url: str = None, cache_time: int = None, show_alert: bool = False) -> bool:
         return await self.methods.AnswerCallbackQuery(callback_query_id, text, url, cache_time, show_alert)
 
-    async def delete_message(self, chat_id: int, message_id: int):
+    async def delete_message(self, chat_id: int, message_id: int) -> bool:
         return await self.methods.DeleteMessage(chat_id=chat_id, message_id=message_id)
 
     async def get_chat(self, chat_id: int) -> Chat:

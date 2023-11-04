@@ -1,5 +1,5 @@
-from .telegram_update import TelegramUpdate, Handler
 from ..middlewares.base import BaseMiddleware
+from .telegram_update import Handler, TelegramUpdate
 
 
 class Router:

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Callable, Any, Awaitable
+from typing import Any, Awaitable, Callable
 
 
 class BaseMiddleware(ABC):
