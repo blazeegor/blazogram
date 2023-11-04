@@ -1,6 +1,7 @@
-from dataclasses import dataclass
-from ..state import State
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+
+from ..state import State
 
 
 @dataclass(frozen=True)

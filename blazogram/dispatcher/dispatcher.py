@@ -1,17 +1,17 @@
+import asyncio
+import inspect
+
 from ..bot.bot import Bot
-from .router import Router
-from ..types import Update, Message, CallbackQuery
+from ..database import Database, MemoryDatabase
+from ..filters import StateFilter
+from ..fsm.context import FSMContext
 from ..fsm.storage.base import BaseStorage, UserKey
 from ..fsm.storage.memory import MemoryStorage
-from ..fsm.context import FSMContext
-from ..filters import StateFilter
-from ..scheduler import BlazeScheduler
-from ..database import Database, MemoryDatabase
 from ..middlewares.database import DatabaseMiddleware
-
 from ..middlewares.handler_middlewares import HandlerMiddlewares
-import inspect
-import asyncio
+from ..scheduler import BlazeScheduler
+from ..types import CallbackQuery, Message, Update
+from .router import Router
 
 
 class Data:

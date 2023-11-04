@@ -1,5 +1,5 @@
-from .base import BaseFilter
 from ..types.message import Message
+from .base import BaseFilter
 
 
 class ChatTypeFilter(BaseFilter):

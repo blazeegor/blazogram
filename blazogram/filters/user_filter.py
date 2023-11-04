@@ -1,6 +1,7 @@
-from .base import BaseFilter
-from ..types import Message, CallbackQuery
 from typing import Union
+
+from ..types import CallbackQuery, Message
+from .base import BaseFilter
 
 
 class UserFilter(BaseFilter):

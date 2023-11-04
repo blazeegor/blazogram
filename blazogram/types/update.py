@@ -1,6 +1,7 @@
-from .message import Message
-from .callback_query import CallbackQuery
 from dataclasses import dataclass
+
+from .callback_query import CallbackQuery
+from .message import Message
 
 
 @dataclass

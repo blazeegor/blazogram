@@ -1,12 +1,15 @@
+from dataclasses import dataclass
+from typing import Any, Union
+
+from blazogram.types.inline_keyboard import InlineKeyboardMarkup
+from blazogram.types.reply_keyboard import (ReplyKeyboardMarkup,
+                                            ReplyKeyboardRemove)
+
 from ..types.chat import Chat
 from ..types.photo import PhotoSize
-from .video import Video
 from ..types.user import User
 from .input_file import InputFile
-from blazogram.types.reply_keyboard import ReplyKeyboardMarkup, ReplyKeyboardRemove
-from blazogram.types.inline_keyboard import InlineKeyboardMarkup
-from typing import Union, Any
-from dataclasses import dataclass
+from .video import Video
 
 
 @dataclass

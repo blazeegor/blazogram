@@ -1,6 +1,7 @@
-from .base import BaseFilter
-from ..types import Message
 from typing import Literal
+
+from ..types import Message
+from .base import BaseFilter
 
 
 class ContentType(BaseFilter):

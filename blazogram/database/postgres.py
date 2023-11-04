@@ -1,9 +1,11 @@
-from .base import Database
-import asyncpg
 import asyncio
+
+import asyncpg
 from asyncpg import Connection
-from ..types.user import User
+
 from ..exceptions import DatabaseError
+from ..types.user import User
+from .base import Database
 
 
 class PostgreSQL(Database):

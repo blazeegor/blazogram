@@ -1,8 +1,10 @@
-from .base import BaseStorage, UserKey
-from ..state import State
-from redis.asyncio.client import Redis, ConnectionPool
-from typing import Literal
 import json
+from typing import Literal
+
+from redis.asyncio.client import ConnectionPool, Redis
+
+from ..state import State
+from .base import BaseStorage, UserKey
 
 
 def build_key(key: UserKey, build_name: Literal['state', 'data']) -> str:

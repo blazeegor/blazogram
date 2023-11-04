@@ -1,6 +1,7 @@
+from dataclasses import dataclass
+
 from ..filters.base import BaseFilter
 from ..middlewares.base import BaseMiddleware
-from dataclasses import dataclass
 
 
 @dataclass
