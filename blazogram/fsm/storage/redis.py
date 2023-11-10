@@ -1,7 +1,7 @@
 from .base import BaseStorage, UserKey
 from ..state import State
 from redis.asyncio.client import Redis, ConnectionPool
-from typing import Literal
+from typing import Literal, Optional
 import json
 
 
@@ -20,7 +20,7 @@ class RedisStorage(BaseStorage):
         redis = Redis(connection_pool=pool)
         return cls(redis=redis)
 
-    async def set_state(self, key: UserKey, state: State | None) -> None:
+    async def set_state(self, key: UserKey, state: Optional[State]) -> None:
         await self.redis.set(name=build_key(key, 'state'), value=state.__str__())
 
     async def get_state(self, key: UserKey) -> State:

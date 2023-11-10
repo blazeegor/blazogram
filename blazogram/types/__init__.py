@@ -8,3 +8,4 @@ from .photo import PhotoSize, ChatPhoto
 from .video import Video
 from .reply_keyboard import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove, Keyboard, KeyboardLine
 from .inline_keyboard import InlineKeyboardMarkup, InlineKeyboardButton, InlineKeyboard, InlineKeyboardLine
+from .inline_query import InlineQuery

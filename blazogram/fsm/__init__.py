@@ -1,2 +1,2 @@
 from .context import FSMContext
-from .state import State
+from .state import State, StatesGroup

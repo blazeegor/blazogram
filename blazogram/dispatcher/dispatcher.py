@@ -1,6 +1,6 @@
 from ..bot.bot import Bot
 from .router import Router
-from ..types import Update, Message, CallbackQuery
+from ..types import Update
 from ..fsm.storage.base import BaseStorage, UserKey
 from ..fsm.storage.memory import MemoryStorage
 from ..fsm.context import FSMContext
@@ -8,8 +8,9 @@ from ..filters import StateFilter
 from ..scheduler import BlazeScheduler
 from ..database import Database, MemoryDatabase
 from ..middlewares.database import DatabaseMiddleware
-
-from ..middlewares.handler_middlewares import HandlerMiddlewares
+from ..middlewares.handler import HandlerMiddlewares
+from ..localization import BlazeLocale
+from typing import Optional
 import inspect
 import asyncio
 
@@ -25,27 +26,39 @@ class Data:
         return self.data
 
 
-def get_data(args: list, bot: Bot, dispatcher, fsm_context: FSMContext, my_data: dict) -> dict:
+def get_data(args: list, bot: Bot, dispatcher, fsm_context: FSMContext, locale: BlazeLocale, my_data: dict) -> dict:
     data = {}
+
     if 'bot' in args:
         data['bot'] = bot
+
     if 'dp' in args:
         data['dp'] = dispatcher
+
     if 'state' in args:
         data['state'] = fsm_context
+
     if 'scheduler' in args:
         data['scheduler'] = dispatcher.scheduler
+
+    if 'locale' in args:
+        data['locale'] = locale
+
     data.update({key: value for key, value in my_data.items() if key in args})
     return data
 
 
 class Dispatcher(Router):
-    def __init__(self, scheduler: BlazeScheduler = BlazeScheduler(), fsm_storage: BaseStorage = MemoryStorage(), database: Database | None = MemoryDatabase()):
+    def __init__(self, scheduler: BlazeScheduler = BlazeScheduler(),
+                 fsm_storage: BaseStorage = MemoryStorage(),
+                 database: Optional[Database] = MemoryDatabase()):
         super().__init__()
+
         self.data = Data()
         self.scheduler = scheduler
         self.fsm_storage = fsm_storage
         self.database = database
+        self.locale = BlazeLocale()
         self.keep_polling = True
 
         if self.database:
@@ -60,7 +73,10 @@ class Dispatcher(Router):
 
     async def start_polling(self, bot: Bot, allowed_updates: list = None):
         if self.database:
-            await bot.connect_database(database=self.database)
+            bot.connect_database(database=self.database)
+
+        if self.locale:
+            bot.connect_locale(locale=self.locale)
 
         task_polling = asyncio.create_task(self._polling(bot=bot, allowed_updates=allowed_updates))
         task_scheduler = asyncio.create_task(self.scheduler.start(dispatcher=self))
@@ -89,6 +105,10 @@ class Dispatcher(Router):
                     event = update.callback_query
                     user_key = UserKey(chat_id=event.message.chat.id, user_id=event.from_user.id)
 
+                elif update.inline_query:
+                    event = update.inline_query
+                    user_key = UserKey(chat_id=event.from_user.id, user_id=event.from_user.id)
+
                 fsm_context = FSMContext(key=user_key, storage=self.fsm_storage)
 
                 for Filter in handler.filters:
@@ -99,7 +119,7 @@ class Dispatcher(Router):
                 if check is True:
                     args = inspect.getfullargspec(handler.func).args
                     my_data = self.data.__dict__()
-                    data = get_data(args=args, bot=bot, dispatcher=self, fsm_context=fsm_context, my_data=my_data)
+                    data = get_data(args=args, bot=bot, dispatcher=self, fsm_context=fsm_context, locale=self.locale, my_data=my_data)
                     if handler.middlewares:
                         middlewares = HandlerMiddlewares(func=handler.func, args=args, data=data, update=event, middlewares=handler.middlewares)
                         await middlewares.start()

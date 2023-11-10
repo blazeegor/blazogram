@@ -1,10 +1,13 @@
-class ParseMode:
+from enum import Enum
+
+
+class ParseMode(Enum):
     HTML = 'HTML'
     MARKDOWN = 'MARKDOWN'
     MARKDOWN_V2 = 'MARKDOWN_V2'
 
 
-class ChatAction:
+class ChatAction(Enum):
     TYPING = 'typing'
     UPLOAD_PHOTO = 'upload_photo'
     RECORD_VIDEO = 'record_video'
@@ -16,3 +19,9 @@ class ChatAction:
     FIND_LOCATION = 'find_location'
     RECORD_VIDEO_NOTE = 'record_video_note'
     UPLOAD_VIDEO_NOTE = 'upload_video_note'
+
+
+class Languages(Enum):
+    RUSSIAN = 'ru'
+    ENGLISH = 'en'
+    FR = 'fr'

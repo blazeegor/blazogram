@@ -1,5 +1,6 @@
 from .message import Message
 from .callback_query import CallbackQuery
+from .inline_query import InlineQuery
 from dataclasses import dataclass
 
 
@@ -12,3 +13,4 @@ class Update:
     channel_post: Message = None
     edited_channel_post: Message = None
     callback_query: CallbackQuery = None
+    inline_query: InlineQuery = None
