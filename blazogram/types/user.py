@@ -17,4 +17,8 @@ class User:
 
     @property
     def full_name(self) -> str:
-        return self.first_name + ' ' + self.last_name if self.last_name else self.first_name
+        return (
+            self.first_name + " " + self.last_name
+            if self.last_name
+            else self.first_name
+        )

@@ -24,6 +24,8 @@ class BlazeLocale:
         return user_id in self.users
 
     def translate(self, user_id: int, text: str) -> str:
-        translation = self.translator.translate(text, dest=self.get_language(user_id)).text
+        translation = self.translator.translate(
+            text, dest=self.get_language(user_id)
+        ).text
 
         return translation

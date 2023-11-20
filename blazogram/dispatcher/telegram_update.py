@@ -24,10 +24,14 @@ class TelegramUpdate:
     def register(self, handler: callable, *filters: BaseFilter):
         filters = list(filters)
         filters.extend(self._filters)
-        self.router.handlers.append(Handler(func=handler,
-                                            update=self.update,
-                                            filters=filters,
-                                            middlewares=self._middlewares))
+        self.router.handlers.append(
+            Handler(
+                func=handler,
+                update=self.update,
+                filters=filters,
+                middlewares=self._middlewares,
+            )
+        )
 
     def filter(self, *filters: BaseFilter):
         self._filters.extend(filters)

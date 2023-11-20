@@ -2,7 +2,14 @@ from .base import BaseMiddleware
 
 
 class HandlerMiddlewares:
-    def __init__(self, func: callable, data: dict, args: list, update, middlewares: list[BaseMiddleware]):
+    def __init__(
+        self,
+        func: callable,
+        data: dict,
+        args: list,
+        update,
+        middlewares: list[BaseMiddleware],
+    ):
         self.func = func
         self.args = args
         self.update = update
