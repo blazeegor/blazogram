@@ -6,7 +6,7 @@ from ..exceptions import FilterError
 class Text(BaseFilter):
     def __init__(self, text: str = None, startswith: str = None, endswith: str = None):
         if text and (startswith or endswith):
-            raise FilterError(message='Filter Text most have a only one argument.')
+            raise FilterError(message="Filter Text most have a only one argument.")
 
         self.text = text
         self.startswith = startswith

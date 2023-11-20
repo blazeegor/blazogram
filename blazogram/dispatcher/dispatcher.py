@@ -26,32 +26,42 @@ class Data:
         return self.data
 
 
-def get_data(args: list, bot: Bot, dispatcher, fsm_context: FSMContext, locale: BlazeLocale, my_data: dict) -> dict:
+def get_data(
+    args: list,
+    bot: Bot,
+    dispatcher,
+    fsm_context: FSMContext,
+    locale: BlazeLocale,
+    my_data: dict,
+) -> dict:
     data = {}
 
-    if 'bot' in args:
-        data['bot'] = bot
+    if "bot" in args:
+        data["bot"] = bot
 
-    if 'dp' in args:
-        data['dp'] = dispatcher
+    if "dp" in args:
+        data["dp"] = dispatcher
 
-    if 'state' in args:
-        data['state'] = fsm_context
+    if "state" in args:
+        data["state"] = fsm_context
 
-    if 'scheduler' in args:
-        data['scheduler'] = dispatcher.scheduler
+    if "scheduler" in args:
+        data["scheduler"] = dispatcher.scheduler
 
-    if 'locale' in args:
-        data['locale'] = locale
+    if "locale" in args:
+        data["locale"] = locale
 
     data.update({key: value for key, value in my_data.items() if key in args})
     return data
 
 
 class Dispatcher(Router):
-    def __init__(self, scheduler: BlazeScheduler = BlazeScheduler(),
-                 fsm_storage: BaseStorage = MemoryStorage(),
-                 database: Optional[Database] = MemoryDatabase()):
+    def __init__(
+        self,
+        scheduler: BlazeScheduler = BlazeScheduler(),
+        fsm_storage: BaseStorage = MemoryStorage(),
+        database: Optional[Database] = MemoryDatabase(),
+    ):
         super().__init__()
 
         self.data = Data()
@@ -78,17 +88,25 @@ class Dispatcher(Router):
         if self.locale:
             bot.connect_locale(locale=self.locale)
 
-        task_polling = asyncio.create_task(self._polling(bot=bot, allowed_updates=allowed_updates))
+        task_polling = asyncio.create_task(
+            self._polling(bot=bot, allowed_updates=allowed_updates)
+        )
         task_scheduler = asyncio.create_task(self.scheduler.start(dispatcher=self))
         await asyncio.wait([task_polling, task_scheduler])
 
     async def _polling(self, bot: Bot, allowed_updates: list):
         offset = None
         while self.keep_polling:
-            updates = await bot.get_updates(offset=offset, allowed_updates=allowed_updates)
+            updates = await bot.get_updates(
+                offset=offset, allowed_updates=allowed_updates
+            )
             if updates:
-                await asyncio.wait([asyncio.create_task(self._feed_update(update=update,
-                                                                          bot=bot)) for update in updates])
+                await asyncio.wait(
+                    [
+                        asyncio.create_task(self._feed_update(update=update, bot=bot))
+                        for update in updates
+                    ]
+                )
                 offset = [update.update_id for update in updates][-1] + 1
 
     async def _feed_update(self, update: Update, bot: Bot):
@@ -100,32 +118,52 @@ class Dispatcher(Router):
 
                 if update.message:
                     event = update.message
-                    user_key = UserKey(chat_id=event.chat.id, user_id=event.from_user.id)
+                    user_key = UserKey(
+                        chat_id=event.chat.id, user_id=event.from_user.id
+                    )
 
                 elif update.callback_query:
                     event = update.callback_query
-                    user_key = UserKey(chat_id=event.message.chat.id, user_id=event.from_user.id)
+                    user_key = UserKey(
+                        chat_id=event.message.chat.id, user_id=event.from_user.id
+                    )
 
                 elif update.inline_query:
                     event = update.inline_query
-                    user_key = UserKey(chat_id=event.from_user.id, user_id=event.from_user.id)
+                    user_key = UserKey(
+                        chat_id=event.from_user.id, user_id=event.from_user.id
+                    )
 
                 fsm_context = FSMContext(key=user_key, storage=self.fsm_storage)
 
                 for Filter in handler.filters:
-                    argument = event if not isinstance(Filter, StateFilter) else await fsm_context.get_state()
+                    argument = (
+                        event
+                        if not isinstance(Filter, StateFilter)
+                        else await fsm_context.get_state()
+                    )
                     if not await Filter.__check__(argument):
                         check = False
 
                 if check:
                     args = inspect.getfullargspec(handler.func).args
                     my_data = self.data.__dict__()
-                    data = get_data(args=args, bot=bot,
-                                    dispatcher=self, fsm_context=fsm_context,
-                                    locale=self.locale, my_data=my_data)
+                    data = get_data(
+                        args=args,
+                        bot=bot,
+                        dispatcher=self,
+                        fsm_context=fsm_context,
+                        locale=self.locale,
+                        my_data=my_data,
+                    )
                     if handler.middlewares:
-                        middlewares = HandlerMiddlewares(func=handler.func, args=args, data=data, update=event,
-                                                         middlewares=handler.middlewares)
+                        middlewares = HandlerMiddlewares(
+                            func=handler.func,
+                            args=args,
+                            data=data,
+                            update=event,
+                            middlewares=handler.middlewares,
+                        )
                         await middlewares.start()
                     else:
                         await handler.func(event, **data)

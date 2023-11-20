@@ -2,7 +2,7 @@ import random
 
 
 class State:
-    def __init__(self, name: str = f'state{random.randint(10000, 999999)}'):
+    def __init__(self, name: str = f"state{random.randint(10000, 999999)}"):
         self.name = name
 
     def __str__(self) -> str:
@@ -27,9 +27,9 @@ class StatesGroup:
                 return state
 
     def __str__(self) -> str:
-        string = 'StatesGroup: '
+        string = "StatesGroup: "
 
         for state in self.states:
-            string += state.name + ', '
+            string += state.name + ", "
 
         return string

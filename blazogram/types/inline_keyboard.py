@@ -11,13 +11,13 @@ class InlineKeyboardButton:
 
 
 def get_button_dict(button: InlineKeyboardButton) -> dict:
-    button_dict = {'text': button.text}
+    button_dict = {"text": button.text}
 
     if button.callback_data:
-        button_dict['callback_data'] = button.callback_data
+        button_dict["callback_data"] = button.callback_data
 
     if button.url:
-        button_dict['url'] = button.url
+        button_dict["url"] = button.url
 
     return button_dict
 
@@ -62,19 +62,25 @@ class InlineKeyboardMarkup:
         if inline_keyboard:
             for line in inline_keyboard:
                 if len(line) > row_width:
-                    raise KeyboardError(message='The number of buttons in a line cannot be more row width.')
+                    raise KeyboardError(
+                        message="The number of buttons in a line cannot be more row width."
+                    )
 
-            self.buttons = [[get_button_dict(button) for button in line] for line in inline_keyboard]
+            self.buttons = [
+                [get_button_dict(button) for button in line] for line in inline_keyboard
+            ]
         else:
             self.buttons = [[]]
 
     @property
     def reply_markup(self) -> str:
-        return json.dumps({'inline_keyboard': self.buttons})
+        return json.dumps({"inline_keyboard": self.buttons})
 
     def add_button(self, button: InlineKeyboardButton):
         if button.callback_data and button.url:
-            raise KeyboardError(message='Inline Keyboard Button must to have a callback_data or url.')
+            raise KeyboardError(
+                message="Inline Keyboard Button must to have a callback_data or url."
+            )
 
         button_dict = get_button_dict(button)
         if len(self.buttons[-1]) >= self.row_width:

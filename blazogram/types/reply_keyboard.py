@@ -33,14 +33,17 @@ class KeyboardButton:
 
 
 def get_button_dict(button: KeyboardButton) -> dict:
-    button_dict = dict(text=button.text, request_contact=button.request_contact,
-                       request_location=button.request_location)
+    button_dict = dict(
+        text=button.text,
+        request_contact=button.request_contact,
+        request_location=button.request_location,
+    )
 
     if button.request_user:
-        button_dict['request_user'] = button.request_user
+        button_dict["request_user"] = button.request_user
 
     if button.request_chat:
-        button_dict['request_chat'] = button.request_chat
+        button_dict["request_chat"] = button.request_chat
 
     return button_dict
 
@@ -79,10 +82,15 @@ class Keyboard:
 
 
 class ReplyKeyboardMarkup:
-    def __init__(self, keyboard: Keyboard = None, row_width: int = 3,
-                 resize_keyboard: bool = True, one_time_keyboard: bool = False,
-                 selective: bool = None, input_field_placeholder: str = None):
-
+    def __init__(
+        self,
+        keyboard: Keyboard = None,
+        row_width: int = 3,
+        resize_keyboard: bool = True,
+        one_time_keyboard: bool = False,
+        selective: bool = None,
+        input_field_placeholder: str = None,
+    ):
         self.row_width = row_width
         self.resize_keyboard = resize_keyboard
         self.one_time_keyboard = one_time_keyboard
@@ -92,23 +100,29 @@ class ReplyKeyboardMarkup:
         if keyboard:
             for line in keyboard:
                 if len(line) > row_width:
-                    raise KeyboardError(message='The number of buttons in a line cannot be more row width.')
+                    raise KeyboardError(
+                        message="The number of buttons in a line cannot be more row width."
+                    )
 
-            self.buttons = [[get_button_dict(button) for button in line] for line in keyboard]
+            self.buttons = [
+                [get_button_dict(button) for button in line] for line in keyboard
+            ]
         else:
             self.buttons = [[]]
 
     @property
     def reply_markup(self):
-        reply_markup = {'keyboard': self.buttons,
-                        'resize_keyboard': self.resize_keyboard,
-                        'one_time_keyboard': self.one_time_keyboard}
+        reply_markup = {
+            "keyboard": self.buttons,
+            "resize_keyboard": self.resize_keyboard,
+            "one_time_keyboard": self.one_time_keyboard,
+        }
 
         if self.input_field_placeholder:
-            reply_markup['input_field_placeholder'] = self.input_field_placeholder
+            reply_markup["input_field_placeholder"] = self.input_field_placeholder
 
         if self.selective:
-            reply_markup['selective'] = self.selective
+            reply_markup["selective"] = self.selective
 
         return json.dumps(reply_markup)
 
@@ -128,4 +142,4 @@ class ReplyKeyboardMarkup:
 
 
 class ReplyKeyboardRemove:
-    reply_markup = json.dumps({'remove_keyboard': True})
+    reply_markup = json.dumps({"remove_keyboard": True})

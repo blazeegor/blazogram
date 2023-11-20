@@ -13,5 +13,13 @@ class CallbackQuery:
     message: Message
     chat_instance: str = None
 
-    async def answer(self, text: str = None, url: str = None, cache_time: int = None, show_alert: bool = False):
-        return await self.bot.answer_callback_query(self.id, text, url, cache_time, show_alert)
+    async def answer(
+        self,
+        text: str = None,
+        url: str = None,
+        cache_time: int = None,
+        show_alert: bool = False,
+    ):
+        return await self.bot.answer_callback_query(
+            self.id, text, url, cache_time, show_alert
+        )
