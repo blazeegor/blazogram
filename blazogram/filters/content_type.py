@@ -1,11 +1,11 @@
 from .base import BaseFilter
 from ..types import Message
-from typing import Literal
+from ..enums import ContentTypes
 
 
 class ContentType(BaseFilter):
-    def __init__(self, content_type: Literal['text', 'photo']):
-        self.content_type = content_type
+    def __init__(self, content_type: ContentTypes):
+        self.content_type = content_type.name
 
     async def __check__(self, message: Message):
         if self.content_type == 'text':

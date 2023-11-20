@@ -11,10 +11,25 @@ class State:
 
 class StatesGroup:
     def __init__(self, *states: State):
-        self.states = iter(list(states))
+        self.states = list(states)
+        self.states_iter = None
 
     def start(self) -> State:
-        return self.states.__next__()
+        self.states_iter = iter(self.states)
+        return self.states[0]
 
     def next(self) -> State:
-        return self.states.__next__()
+        return self.states_iter.__next__()
+
+    def get_state(self, name: str) -> State:
+        for state in self.states:
+            if state.name == name:
+                return state
+
+    def __str__(self) -> str:
+        string = 'StatesGroup: '
+
+        for state in self.states:
+            string += state.name + ', '
+
+        return string

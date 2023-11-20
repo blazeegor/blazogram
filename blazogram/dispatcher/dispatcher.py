@@ -84,10 +84,11 @@ class Dispatcher(Router):
 
     async def _polling(self, bot: Bot, allowed_updates: list):
         offset = None
-        while self.keep_polling is True:
+        while self.keep_polling:
             updates = await bot.get_updates(offset=offset, allowed_updates=allowed_updates)
             if updates:
-                await asyncio.wait([asyncio.create_task(self._feed_update(update=update, bot=bot)) for update in updates])
+                await asyncio.wait([asyncio.create_task(self._feed_update(update=update,
+                                                                          bot=bot)) for update in updates])
                 offset = [update.update_id for update in updates][-1] + 1
 
     async def _feed_update(self, update: Update, bot: Bot):
@@ -116,12 +117,15 @@ class Dispatcher(Router):
                     if not await Filter.__check__(argument):
                         check = False
 
-                if check is True:
+                if check:
                     args = inspect.getfullargspec(handler.func).args
                     my_data = self.data.__dict__()
-                    data = get_data(args=args, bot=bot, dispatcher=self, fsm_context=fsm_context, locale=self.locale, my_data=my_data)
+                    data = get_data(args=args, bot=bot,
+                                    dispatcher=self, fsm_context=fsm_context,
+                                    locale=self.locale, my_data=my_data)
                     if handler.middlewares:
-                        middlewares = HandlerMiddlewares(func=handler.func, args=args, data=data, update=event, middlewares=handler.middlewares)
+                        middlewares = HandlerMiddlewares(func=handler.func, args=args, data=data, update=event,
+                                                         middlewares=handler.middlewares)
                         await middlewares.start()
                     else:
                         await handler.func(event, **data)

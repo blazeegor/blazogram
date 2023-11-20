@@ -24,7 +24,7 @@ class Methods:
         response = await self.session.get(url=f'https://api.telegram.org/bot{self.bot.token}/getUpdates', data=data)
 
         data = await response.json()
-        print(data)
+
         if data['ok'] is True:
             updates = []
 
@@ -63,7 +63,8 @@ class Methods:
                     callback_query['from_user'] = User(**callback_query['from'])
                     message['chat'] = Chat(**message['chat'])
                     message['from_user'] = User(**message['from'])
-                    message['photo'] = [PhotoSize(**photo_size) for photo_size in message['photo']] if 'photo' in message.keys() else None
+                    message['photo'] = [PhotoSize(**photo_size) for photo_size in
+                                        message['photo']] if 'photo' in message.keys() else None
 
                     if 'reply_markup' in message:
                         inline_keyboard_list = message['reply_markup']['inline-keyboard']
@@ -108,7 +109,8 @@ class Methods:
             raise TelegramBadRequest(message=data["description"])
 
     async def SkipUpdates(self):
-        response = await self.session.get(url=f'https://api.telegram.org/bot{self.bot.token}/deleteWebhook?drop_pending_updates=True')
+        response = await self.session.get(
+            url=f'https://api.telegram.org/bot{self.bot.token}/deleteWebhook?drop_pending_updates=True')
         data = await response.json()
         if data['ok'] is True:
             return True
@@ -150,10 +152,12 @@ class Methods:
         else:
             raise TelegramBadRequest(message=data["description"])
 
-    async def EditMessageText(self, chat_id: Union[int, str], text: str, message_id: int, parse_mode: str, reply_markup: str) -> Message:
+    async def EditMessageText(self, chat_id: Union[int, str], text: str, message_id: int, parse_mode: str,
+                              reply_markup: str) -> Message:
         data = {'chat_id': f'{chat_id}', 'text': text,
                 'message_id': message_id, 'reply_markup': reply_markup, 'parse_mode': parse_mode}
-        response = await self.session.post(url=f'https://api.telegram.org/bot{self.bot.token}/editMessageText', data=data)
+        response = await self.session.post(url=f'https://api.telegram.org/bot{self.bot.token}/editMessageText',
+                                           data=data)
 
         data = await response.json()
         if data['ok'] is True:
@@ -183,7 +187,8 @@ class Methods:
         else:
             raise TelegramBadRequest(message=data["description"])
 
-    async def SendPhoto(self, chat_id: Union[int, str], photo: Union[InputFile, str], caption: str, parse_mode: str, reply_markup: str) -> Message:
+    async def SendPhoto(self, chat_id: Union[int, str], photo: Union[InputFile, str], caption: str, parse_mode: str,
+                        reply_markup: str) -> Message:
         data = {'chat_id': f'{chat_id}',
                 'photo': photo if isinstance(photo, str) else photo.file,
                 'reply_markup': reply_markup, 'parse_mode': parse_mode}
@@ -206,7 +211,8 @@ class Methods:
         else:
             raise TelegramBadRequest(message=data["description"])
 
-    async def SendVideo(self, chat_id: Union[int, str], video: Union[InputFile, str], caption: str, parse_mode: str, reply_markup: str) -> Message:
+    async def SendVideo(self, chat_id: Union[int, str], video: Union[InputFile, str], caption: str, parse_mode: str,
+                        reply_markup: str) -> Message:
         data = {'chat_id': f'{chat_id}', 'reply_markup': reply_markup, 'parse_mode': parse_mode,
                 'video': video if isinstance(video, str) else video.file}
 
@@ -265,7 +271,8 @@ class Methods:
             raise TelegramBadRequest(message=data["description"])
 
     async def AnswerCallbackQuery(self, callback_query_id: int, text: str, url: str, show_alert: bool) -> bool:
-        data = {'callback_query_id': callback_query_id, 'show_alert': show_alert}
+        data = {'callback_query_id': callback_query_id,
+                'show_alert': show_alert}
 
         if text:
             data['text'] = text
@@ -273,7 +280,8 @@ class Methods:
         if url:
             data['url'] = url
 
-        response = await self.session.post(url=f'https://api.telegram.org/bot{self.bot.token}/answerCallbackQuery', data=data)
+        response = await self.session.post(url=f'https://api.telegram.org/bot{self.bot.token}/answerCallbackQuery',
+                                           data=data)
 
         data = await response.json()
         if data['ok'] is True:

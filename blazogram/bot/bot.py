@@ -17,7 +17,7 @@ import asyncio
 class Bot:
     def __init__(self, token: str, parse_mode: ParseMode = None):
         self.token = token
-        self.parse_mode = parse_mode.name
+        self.parse_mode = parse_mode.name if parse_mode else None
         self.methods = Methods(bot=self)
         self.session = self.methods.session
         self.database = None
@@ -29,7 +29,9 @@ class Bot:
     def connect_locale(self, locale: BlazeLocale):
         self.locale = locale
 
-    async def send_all(self, text: str = None, photo: Union[str, InputFile] = None, video: Union[str, InputFile] = None, parse_mode: str = None, reply_markup: Union[ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove] = ReplyKeyboardMarkup()) -> tuple:
+    async def send_all(self, text: str = None, photo: Union[str, InputFile] = None, video: Union[str, InputFile] = None,
+                       parse_mode: str = None, reply_markup: Union[
+                ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove] = ReplyKeyboardMarkup()) -> tuple:
         number = 0
         users = await self.database.get_users()
         data = {'parse_mode': parse_mode, 'reply_markup': reply_markup}
@@ -45,22 +47,36 @@ class Bot:
             except TelegramBadRequest:
                 pass
             number += 1
-        return (number, len(users) - number,)
 
-    async def send_message(self, chat_id: Union[int, str], text: str, parse_mode: str = None, reply_markup: Union[ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove] = ReplyKeyboardMarkup()) -> Message:
+        return number, len(users) - number,
+
+    async def send_message(self, chat_id: Union[int, str], text: str, parse_mode: str = None, reply_markup: Union[
+        ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove] = ReplyKeyboardMarkup()) -> Message:
         return await self.methods.SendMessage(chat_id=chat_id,
-                                              text=self.locale.translate(chat_id, text) if self.locale.check_user(chat_id) else text,
+                                              text=self.locale.translate(chat_id, text) if self.locale.check_user(
+                                                  chat_id) else text,
                                               reply_markup=reply_markup.reply_markup,
                                               parse_mode=parse_mode if parse_mode else self.parse_mode)
 
-    async def edit_message_text(self, chat_id: Union[int, str], text: str, message_id: int, parse_mode: str, reply_markup: InlineKeyboardMarkup = InlineKeyboardMarkup()) -> Message:
-        return await self.methods.EditMessageText(chat_id=chat_id, text=text, message_id=message_id, reply_markup=reply_markup.reply_markup, parse_mode=parse_mode if parse_mode else self.parse_mode)
+    async def edit_message_text(self, chat_id: Union[int, str], text: str, message_id: int, parse_mode: str,
+                                reply_markup: InlineKeyboardMarkup = InlineKeyboardMarkup()) -> Message:
+        return await self.methods.EditMessageText(chat_id=chat_id, text=text, message_id=message_id,
+                                                  reply_markup=reply_markup.reply_markup,
+                                                  parse_mode=parse_mode if parse_mode else self.parse_mode)
 
-    async def send_photo(self, chat_id: Union[int, str], photo: Union[InputFile, str], caption: str = None, parse_mode: str = None, reply_markup: Union[ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove] = InlineKeyboardMarkup()) -> Message:
-        return await self.methods.SendPhoto(chat_id=chat_id, photo=photo, caption=caption, parse_mode=parse_mode if parse_mode else self.parse_mode, reply_markup=reply_markup.reply_markup)
+    async def send_photo(self, chat_id: Union[int, str], photo: Union[InputFile, str], caption: str = None,
+                         parse_mode: str = None, reply_markup: Union[
+                ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove] = InlineKeyboardMarkup()) -> Message:
+        return await self.methods.SendPhoto(chat_id=chat_id, photo=photo, caption=caption,
+                                            parse_mode=parse_mode if parse_mode else self.parse_mode,
+                                            reply_markup=reply_markup.reply_markup)
 
-    async def send_video(self, chat_id: Union[int, str], video: [InputFile, str], caption: str = None, parse_mode: str = None, reply_markup: Union[ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove] = InlineKeyboardMarkup()) -> Message:
-        return await self.methods.SendVideo(chat_id=chat_id, video=video, caption=caption, parse_mode=parse_mode if parse_mode else self.parse_mode, reply_markup=reply_markup.reply_markup)
+    async def send_video(self, chat_id: Union[int, str], video: [InputFile, str], caption: str = None,
+                         parse_mode: str = None, reply_markup: Union[
+                ReplyKeyboardMarkup, InlineKeyboardMarkup, ReplyKeyboardRemove] = InlineKeyboardMarkup()) -> Message:
+        return await self.methods.SendVideo(chat_id=chat_id, video=video, caption=caption,
+                                            parse_mode=parse_mode if parse_mode else self.parse_mode,
+                                            reply_markup=reply_markup.reply_markup)
 
     async def send_chat_action(self, chat_id: Union[int, str], action: str, message_thread_id: int = None) -> bool:
         return await self.methods.SendChatAction(chat_id=chat_id, action=action, message_thread_id=message_thread_id)
@@ -74,7 +90,8 @@ class Bot:
     async def skip_updates(self):
         return await self.methods.SkipUpdates()
 
-    async def answer_callback_query(self, callback_query_id: int, text: str = None, url: str = None, show_alert: bool = False) -> bool:
+    async def answer_callback_query(self, callback_query_id: int, text: str = None, url: str = None,
+                                    show_alert: bool = False) -> bool:
         return await self.methods.AnswerCallbackQuery(callback_query_id, text, url, show_alert)
 
     async def delete_message(self, chat_id: int, message_id: int):

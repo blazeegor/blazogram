@@ -1,0 +1,77 @@
+Metadata-Version: 2.1
+Name: blazogram
+Version: 2.1
+Summary: BLAZOGRAM - is a library for make Telegram Bots
+Author-email: EgorBlaze <blazeegor@gmail.com>
+Project-URL: Homepage, https://github.com/blazeegor/blazogram
+Project-URL: Bug Tracker, https://github.com/blazeegor/blazogram/issues
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Description-Content-Type: text/x-rst
+Requires-Dist: aiohttp
+Requires-Dist: redis
+Requires-Dist: asyncpg
+Requires-Dist: aiosqlite
+Requires-Dist: locute
+
+BLAZOGRAM - A library for make Telegram Bots.
+=============================================
+
+Install
+=======
+
+
+.. code-block:: console
+
+
+  $ pip install blazogram
+
+
+
+Example Usage
+=============
+
+
+
+.. code-block:: python
+
+
+
+  from blazogram import Bot, Dispatcher, BlazeLocale
+  from blazogram.types import Message, CallbackQuery, ReplyKeyboardMarkup, KeyboardButton
+  from blazogram.filters import Command, Data
+  from blazogram.enums import ParseMode
+  import asyncio
+
+
+  async def start_command(message: Message):
+      kb = ReplyKeyboardMarkup()
+      button = KeyboardButton(text='BUTTON')
+      kb.add_button(button)
+      await message.answer(text='Hello World!', reply_markup=kb)
+
+
+  async def some_func(callback: CallbackQuery):
+      await callback.answer(text='Hello World!', show_alert=True)
+
+
+  async def main():
+      bot = Bot(token='YOUR-BOT-TOKEN', parse_mode=ParseMode.HTML)
+      dp = Dispatcher()
+
+      dp.message.register(start_command, Command("start"))
+      dp.callback_query.register(some_func, Data("BUTTON_DATA"))
+
+      await bot.skip_updates()
+      try:
+          await dp.start_polling(bot)
+      finally:
+          await bot.session.close()
+
+
+  if __name__ == '__main__':
+      asyncio.run(main())
+
+**Developer - @Blaze_Egor**

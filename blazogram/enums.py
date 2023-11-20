@@ -24,4 +24,10 @@ class ChatAction(Enum):
 class Languages(Enum):
     RUSSIAN = 'ru'
     ENGLISH = 'en'
-    FR = 'fr'
+    FRENCH = 'fr'
+
+
+class ContentTypes(Enum):
+    TEXT = 'text'
+    PHOTO = 'photo'
+    VIDEO = 'video'
