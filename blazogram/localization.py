@@ -8,7 +8,7 @@ class BlazeLocale:
         self.translator = Translaitor()
 
     def set_language(self, user_id: int, language: Languages) -> None:
-        self.users[user_id] = language.name
+        self.users[user_id] = language.value
 
     def get_language(self, user_id: int) -> str:
         return self.users[user_id]
@@ -18,7 +18,7 @@ class BlazeLocale:
 
     async def translate(self, user_id: int, text: str, source: Languages) -> str:
         translation = await self.translator.translate(
-            text, target=self.get_language(user_id), source=source.name
+            text, target=self.get_language(user_id), source=source.value
         )
 
         return translation
