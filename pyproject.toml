@@ -16,7 +16,8 @@ dependencies = [
     "aiohttp",
     "redis",
     "asyncpg",
-    "aiosqlite"
+    "aiosqlite",
+    "aiotrans[aiohttp]"
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
